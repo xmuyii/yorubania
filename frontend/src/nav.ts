@@ -1,4 +1,5 @@
 import { logout } from "./auth";
+import { apiGet } from "./api";
 
 export function renderNav(current: string) {
   const el = document.getElementById("nav-root");
@@ -6,7 +7,9 @@ export function renderNav(current: string) {
 
   const links = [
     { href: "/dashboard.html", label: "Dashboard" },
+    { href: "/family-tree.html", label: "Family Tree" },
     { href: "/vault.html", label: "Vault" },
+    { href: "/family-media.html", label: "Family Media" },
     { href: "/council.html", label: "Council" },
     { href: "/families.html", label: "Families" },
     { href: "/directory.html", label: "Directory" },
@@ -16,7 +19,7 @@ export function renderNav(current: string) {
     <header class="topbar">
       <div class="bar-inner">
         <a class="brand" href="/dashboard.html">Yorubania</a>
-        <nav>
+        <nav id="nav-links">
           ${links
             .map(
               (l) =>
@@ -35,4 +38,22 @@ export function renderNav(current: string) {
     await logout();
     window.location.href = "/index.html";
   });
+
+  // Admin link only shown to admin/superadmin accounts. This is purely a
+  // UI convenience — every admin-only route is enforced server-side
+  // regardless of whether this link is visible.
+  apiGet("/accounts/me")
+    .then((me) => {
+      if (me.role === "admin" || me.role === "superadmin") {
+        const navLinks = document.getElementById("nav-links")!;
+        const adminLink = document.createElement("a");
+        adminLink.href = "/admin.html";
+        adminLink.textContent = "Admin";
+        if ("/admin.html" === current) adminLink.className = "current";
+        navLinks.insertBefore(adminLink, document.getElementById("logout-link"));
+      }
+    })
+    .catch(() => {
+      // Not fatal — just means the admin link doesn't appear.
+    });
 }

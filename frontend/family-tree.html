@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Tree — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      #tree-canvas {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        background: var(--paper-raised);
+        border-radius: 4px;
+      }
+      .tree-node-name {
+        font-family: var(--sans);
+        font-size: 11px;
+        fill: var(--ink);
+        text-anchor: middle;
+      }
+      .tree-node-circle {
+        fill: var(--paper-raised);
+        stroke: var(--brass);
+        stroke-width: 1.5;
+      }
+      .tree-node-circle.deceased {
+        stroke-dasharray: 3 2;
+        opacity: 0.7;
+      }
+      .tree-node-initials {
+        font-family: var(--serif);
+        font-size: 14px;
+        fill: var(--indigo-soft);
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+      .tree-edge-parent-child {
+        stroke: var(--indigo-soft);
+        stroke-width: 1.5;
+        fill: none;
+      }
+      .tree-edge-spouse {
+        stroke: var(--brass);
+        stroke-width: 2;
+        fill: none;
+      }
+      .tree-edge-sibling {
+        stroke: var(--line-strong);
+        stroke-width: 1;
+        stroke-dasharray: 2 2;
+        fill: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px; max-width: 1100px;">
+      <section class="section">
+        <p class="section-label">Lineage</p>
+        <h1>Your family tree</h1>
+        <p class="muted">
+          Solid lines connect parents to children; the brass line connects
+          spouses; dashed grey lines connect siblings. Ancestor and
+          descendant lines are shown regardless of what content you have
+          permission to view — the structure of who's related to whom is
+          open, uploads and vault contents are not.
+        </p>
+        <label for="root-person-id">Center the tree on (person ID, defaults to you)</label>
+        <input type="text" id="root-person-id" />
+        <button id="reload-tree">Show tree</button>
+      </section>
+
+      <section class="section">
+        <div id="tree-canvas">
+          <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+      </section>
+
+      <div id="message"></div>
+    </div>
+    <script type="module" src="/src/pages/family-tree.ts"></script>
+  </body>
+</html>

@@ -33,6 +33,26 @@ export function createSupabaseGraphClient(supabase: SupabaseClient): GraphDbClie
       return (persons ?? []).map((p) => ({ id: p.id, accountId: p.account_id }));
     },
 
+    async getSpousePersons(personId): Promise<PersonRef[]> {
+      const { data, error } = await supabase
+        .from("relationships")
+        .select("person_a_id, person_b_id")
+        .eq("relationship_type", "spouse")
+        .or(`person_a_id.eq.${personId},person_b_id.eq.${personId}`);
+      if (error || !data) return [];
+
+      const spouseIds = data.map((r) =>
+        r.person_a_id === personId ? r.person_b_id : r.person_a_id
+      );
+      if (spouseIds.length === 0) return [];
+
+      const { data: persons } = await supabase
+        .from("persons")
+        .select("id, account_id")
+        .in("id", spouseIds);
+      return (persons ?? []).map((p) => ({ id: p.id, accountId: p.account_id }));
+    },
+
     async getChildPersons(parentPersonId): Promise<PersonRef[]> {
       const { data, error } = await supabase
         .from("relationships")

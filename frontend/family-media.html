@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Media — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Family page</p>
+        <h1>Photos &amp; documents</h1>
+        <p class="muted">
+          Not encrypted like your vault — this is the shared family record
+          visible to whoever you've granted access to (siblings see their
+          nieces/nephews by default, unless you've locked something away).
+          Stored as uploaded for now; long-term archival format conversion
+          is on the roadmap.
+        </p>
+
+        <label for="subject-person-id">Whose page is this for?</label>
+        <input type="text" id="subject-person-id" placeholder="Your own person ID (auto-filled below)" />
+        <p class="muted" id="self-hint"></p>
+
+        <label for="media-file">File</label>
+        <input type="file" id="media-file" />
+        <button id="media-submit">Upload</button>
+      </section>
+
+      <section class="section">
+        <h2>Uploaded items</h2>
+        <div id="media-list" class="muted">Loading…</div>
+      </section>
+
+      <div id="message"></div>
+    </div>
+    <script type="module" src="/src/pages/family-media.ts"></script>
+  </body>
+</html>

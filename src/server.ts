@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
+import WebSocket from "ws";
 import { inviteRoutes } from "./routes/invite";
 import { tribeRoutes } from "./routes/tribe";
 import { foundingNarrativeRoutes } from "./routes/founding-narrative";
@@ -14,12 +15,22 @@ import { vaultRoutes } from "./routes/vault";
 import { mediaRoutes } from "./routes/media";
 import { backupRoutes } from "./routes/backup";
 import { adminManagementRoutes } from "./routes/admin-management";
+import { accountRoutes } from "./routes/accounts";
+import { familyTreeRoutes } from "./routes/family-tree";
 
 // SUPABASE_SERVICE_ROLE_KEY must only ever exist in server-side environment
 // variables (Railway config), never shipped to any client bundle.
+//
+// The `realtime.transport` option below is a belt-and-suspenders fix: newer
+// supabase-js versions require a native WebSocket global (Node 22+) and
+// otherwise crash the process on startup. Passing the `ws` package directly
+// makes this work regardless of which Node version Railway's build ends up
+// using — we don't even use realtime features, but supabase-js constructs
+// that client unconditionally, so it has to be satisfied either way.
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { realtime: { transport: WebSocket as any } }
 );
 
 const app = express();
@@ -56,6 +67,8 @@ app.use("/api", vaultRoutes(supabaseAdmin));
 app.use("/api", mediaRoutes(supabaseAdmin));
 app.use("/api", backupRoutes(supabaseAdmin));
 app.use("/api", adminManagementRoutes(supabaseAdmin));
+app.use("/api", accountRoutes(supabaseAdmin));
+app.use("/api", familyTreeRoutes(supabaseAdmin));
 
 const port = process.env.PORT ?? 3000;
 app.listen(port, () => {

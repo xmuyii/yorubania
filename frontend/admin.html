@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Administration</p>
+        <h1>Admin panel</h1>
+        <p class="muted" id="access-check">Checking access…</p>
+      </section>
+
+      <div id="admin-content" style="display:none">
+        <section class="section">
+          <h2>Register a person</h2>
+          <p class="muted">For someone with no existing connection to a current member.</p>
+          <form id="register-form">
+            <label for="register-name">Full name</label>
+            <input type="text" id="register-name" required />
+            <button type="submit">Generate invite link</button>
+          </form>
+          <div id="register-result"></div>
+        </section>
+
+        <section class="section">
+          <h2>Council elections</h2>
+          <form id="open-election-form">
+            <label for="seat-number">Seat number (1–7)</label>
+            <input type="number" id="seat-number" min="1" max="7" required />
+            <label for="opens-at">Opens at</label>
+            <input type="datetime-local" id="opens-at" required />
+            <label for="closes-at">Closes at</label>
+            <input type="datetime-local" id="closes-at" required />
+            <button type="submit">Open election</button>
+          </form>
+          <hr class="hairline" />
+          <form id="resolve-election-form">
+            <label for="resolve-election-id">Election ID to resolve</label>
+            <input type="text" id="resolve-election-id" required />
+            <button type="submit">Resolve election</button>
+          </form>
+          <div id="election-result"></div>
+        </section>
+
+        <section class="section">
+          <h2>System backups</h2>
+          <p class="muted" id="backup-status">Loading status…</p>
+          <button id="trigger-backup">Run a backup now</button>
+          <div id="backup-result"></div>
+        </section>
+
+        <section class="section" id="superadmin-only" style="display:none">
+          <h2>Admin accounts (superadmin only)</h2>
+          <div id="admins-list" class="muted">Loading…</div>
+          <form id="grant-admin-form">
+            <label for="grant-account-id">Account ID to make admin</label>
+            <input type="text" id="grant-account-id" required />
+            <button type="submit">Grant admin</button>
+          </form>
+          <div id="admin-mgmt-result"></div>
+
+          <hr class="hairline" />
+
+          <h3>Vault recovery custodian</h3>
+          <p class="muted">The one account allowed to request Standard-mode vault recovery.</p>
+          <form id="custodian-form">
+            <label for="custodian-account-id">Account ID</label>
+            <input type="text" id="custodian-account-id" required />
+            <button type="submit">Set custodian</button>
+          </form>
+          <div id="custodian-result"></div>
+        </section>
+      </div>
+
+      <div id="message"></div>
+    </div>
+    <script type="module" src="/src/pages/admin.ts"></script>
+  </body>
+</html>

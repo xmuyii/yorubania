@@ -37,6 +37,16 @@ export async function apiPatch(path: string, body: unknown): Promise<any> {
   return res.json();
 }
 
+export async function apiPut(path: string, body: unknown): Promise<any> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "PUT",
+    headers: await authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error((await safeError(res)) ?? `PUT ${path} failed (${res.status})`);
+  return res.json();
+}
+
 export async function apiDelete(path: string): Promise<void> {
   const res = await fetch(`${BASE_URL}${path}`, { method: "DELETE", headers: await authHeaders() });
   if (!res.ok) throw new Error((await safeError(res)) ?? `DELETE ${path} failed (${res.status})`);
