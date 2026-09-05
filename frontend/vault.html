@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vault — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Your vault</p>
+        <h1>Encrypted, and yours alone</h1>
+        <p class="muted">
+          Everything you store here is encrypted on this device before it
+          ever leaves your browser. Yorubania's servers only ever see
+          scrambled bytes — not even an admin can read your vault's
+          contents without your passphrase.
+        </p>
+      </section>
+
+      <section class="section" id="init-section" style="display:none">
+        <h2>Set up your vault</h2>
+        <p class="muted">This happens once. Choose your passphrase carefully — it cannot be reset if forgotten in Extra Safe mode.</p>
+        <form id="init-form">
+          <label for="passphrase">Vault passphrase</label>
+          <input type="password" id="passphrase" required minlength="10" autocomplete="new-password" />
+
+          <label for="security-mode">Security mode</label>
+          <select id="security-mode">
+            <option value="extra_safe">Extra Safe — no recovery possible, ever, if forgotten</option>
+            <option value="standard">Standard — a designated recovery custodian can help if forgotten</option>
+          </select>
+
+          <button type="submit">Create vault</button>
+        </form>
+      </section>
+
+      <section class="section" id="decoy-section" style="display:none">
+        <h2>Set up your decoy</h2>
+        <p class="muted">
+          Before storing anything real, you must upload a decoy — a document
+          you've made yourself that looks convincing but isn't real. If
+          someone ever guesses at your vault without permission, this is
+          what they'll see instead.
+        </p>
+        <label for="decoy-file">Decoy file</label>
+        <input type="file" id="decoy-file" />
+        <button id="decoy-submit">Upload decoy</button>
+      </section>
+
+      <section class="section" id="unlock-section" style="display:none">
+        <h2>Unlock your vault</h2>
+        <label for="unlock-passphrase">Passphrase</label>
+        <input type="password" id="unlock-passphrase" autocomplete="current-password" />
+        <button id="unlock-submit">Unlock</button>
+      </section>
+
+      <section class="section" id="items-section" style="display:none">
+        <h2>Stored items</h2>
+        <label for="item-file">Add a file</label>
+        <input type="file" id="item-file" />
+        <button id="item-submit">Encrypt &amp; upload</button>
+        <hr class="hairline" />
+        <div id="items-list" class="muted">Loading…</div>
+      </section>
+
+      <div id="message"></div>
+    </div>
+
+    <script type="module" src="/src/pages/vault.ts"></script>
+  </body>
+</html>

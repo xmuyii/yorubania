@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Families — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Lineages</p>
+        <h1>Families of Yorubania</h1>
+        <p class="muted">Every branch present in the tribe, including where it split from another.</p>
+        <div id="families-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section">
+        <h2>Found a new branch</h2>
+        <form id="branch-form">
+          <label for="branch-name">Family name</label>
+          <input type="text" id="branch-name" required />
+          <label for="parent-branch-id">Split from (family ID, optional)</label>
+          <input type="text" id="parent-branch-id" />
+          <label for="origin-note">Origin note (optional)</label>
+          <input type="text" id="origin-note" />
+          <button type="submit">Found branch</button>
+        </form>
+        <div id="branch-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/families.ts"></script>
+  </body>
+</html>

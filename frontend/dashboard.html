@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+
+    <div class="container" style="padding-top: 40px;">
+      <section class="section" id="mission-section">
+        <p class="section-label" id="era-label">Loading…</p>
+        <h1>The next thousand years</h1>
+        <p id="mission-statement" class="muted">Loading mission statement…</p>
+        <div class="timeline-track"><div class="timeline-fill" id="timeline-fill"></div></div>
+        <p class="muted" id="timeline-caption"></p>
+      </section>
+
+      <section class="section" id="leadership-section">
+        <h2>Founder &amp; Council</h2>
+        <div class="seals" id="leadership-seals"></div>
+      </section>
+
+      <section class="section" id="invite-section">
+        <h2>Bring in a relative</h2>
+        <p class="muted">
+          Invite someone already connected to you by relationship. They'll
+          receive a link to claim their own account.
+        </p>
+        <form id="invite-form">
+          <label for="full-name">Their full name</label>
+          <input type="text" id="full-name" required />
+
+          <label for="relationship-type">Relationship to you</label>
+          <select id="relationship-type">
+            <option value="parent_child">Parent / Child</option>
+            <option value="sibling">Sibling</option>
+            <option value="spouse">Spouse</option>
+            <option value="adoptive_parent">Adoptive parent</option>
+            <option value="guardian">Guardian</option>
+          </select>
+
+          <div id="inviter-role-wrap">
+            <label for="inviter-role">You are their…</label>
+            <select id="inviter-role">
+              <option value="parent">Parent (you're inviting your child)</option>
+              <option value="child">Child (you're inviting your parent)</option>
+            </select>
+          </div>
+
+          <button type="submit">Generate invite link</button>
+        </form>
+        <div id="invite-result"></div>
+      </section>
+
+      <section class="section" id="announcements-section">
+        <h2>News</h2>
+        <div id="announcements-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="achievements-section">
+        <h2>Achievements</h2>
+        <form id="achievement-form">
+          <label for="achievement-title">Share something you've accomplished</label>
+          <input type="text" id="achievement-title" placeholder="Title" required />
+          <textarea id="achievement-description" placeholder="Details (optional)" rows="2"></textarea>
+          <button type="submit">Post</button>
+        </form>
+        <div id="achievements-list" class="muted" style="margin-top:20px;">Loading…</div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/pages/dashboard.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Directory — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Members</p>
+        <h1>Directory</h1>
+        <p class="muted">
+          Only members who've chosen to be listed appear here — being
+          discoverable is opt-in.
+        </p>
+        <label for="visibility-toggle">
+          <input type="checkbox" id="visibility-toggle" style="width:auto; display:inline-block; margin-right:8px;" />
+          List me in the directory
+        </label>
+
+        <hr class="hairline" />
+
+        <label for="search">Search by name</label>
+        <input type="text" id="search" placeholder="Start typing…" />
+        <div id="results" class="muted" style="margin-top: 20px;">Search for someone to begin.</div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/directory.ts"></script>
+  </body>
+</html>

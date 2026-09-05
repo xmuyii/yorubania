@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Council — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Governance</p>
+        <h1>The Council of Seven</h1>
+        <p class="muted">
+          Elected by every member, staggered terms, no two closely
+          blood-related members serving at once. See the founding narrative
+          spec for the full eligibility rules.
+        </p>
+        <div id="seats-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section">
+        <h2>Cast a vote</h2>
+        <p class="muted">Enter an election ID and the account ID of a nominated candidate.</p>
+        <form id="vote-form">
+          <label for="election-id">Election ID</label>
+          <input type="text" id="election-id" required />
+          <label for="candidate-id">Candidate account ID</label>
+          <input type="text" id="candidate-id" required />
+          <button type="submit">Vote</button>
+        </form>
+        <div id="vote-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/council.ts"></script>
+  </body>
+</html>
