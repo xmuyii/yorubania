@@ -66,7 +66,11 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
       })
       .select("id")
       .single();
-    if (error || !vault) return res.status(500).json({ error: "failed to initialize vault" });
+    if (error || !vault) {
+      return res
+        .status(500)
+        .json({ error: `failed to initialize vault: ${error?.message ?? "unknown error"}` });
+    }
     return res.status(201).json({ vaultId: vault.id });
   });
 
@@ -176,7 +180,11 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
       .insert({ vault_id: vault.id, is_decoy: false, storage_path: "", size_bytes: req.body.length, encrypted: true })
       .select("id")
       .single();
-    if (itemInsertError || !item) return res.status(500).json({ error: "failed to record vault item" });
+    if (itemInsertError || !item) {
+      return res
+        .status(500)
+        .json({ error: `failed to record vault item: ${itemInsertError?.message ?? "unknown error"}` });
+    }
 
     const path = `vault/${req.auth!.accountId}/${item.id}`;
     const { error: uploadError } = await uploadObject(supabaseAdmin, path, req.body, "application/octet-stream");
