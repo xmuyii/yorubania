@@ -48,6 +48,21 @@
         </section>
 
         <section class="section">
+          <h2>Log an achievement</h2>
+          <p class="muted">Recorded on behalf of a member — shown in the general news/achievements feed.</p>
+          <form id="achievement-form">
+            <label for="achievement-account-id">Member's account ID</label>
+            <input type="text" id="achievement-account-id" required />
+            <label for="achievement-title">Title</label>
+            <input type="text" id="achievement-title" required />
+            <label for="achievement-description">Details (optional)</label>
+            <textarea id="achievement-description" rows="2"></textarea>
+            <button type="submit">Log achievement</button>
+          </form>
+          <div id="achievement-result"></div>
+        </section>
+
+        <section class="section">
           <h2>System backups</h2>
           <p class="muted" id="backup-status">Loading status…</p>
           <button id="trigger-backup">Run a backup now</button>

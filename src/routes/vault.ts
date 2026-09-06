@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAuth } from "../middleware/auth-context";
 import { uploadObject, downloadObject, deleteObject } from "../storage/supabase-storage";
+import { checkProfileRequirement } from "../policies/profile-requirements";
 
 /**
  * IMPORTANT: the server NEVER sees plaintext vault contents. Every byte
@@ -103,6 +104,11 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
   // uploaded (spec Section 6). Body is the encrypted decoy blob itself;
   // filename/IV etc. travel as headers since this is a raw binary upload.
   router.post("/vaults/me/decoy", requireAuth(supabaseAdmin), rawBody, async (req, res) => {
+    const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
+    if (!profileCheck.allowed) {
+      return res.status(403).json({ error: profileCheck.reason });
+    }
+
     const vault = await getOwnVault(supabaseAdmin, req.auth!.accountId);
     if (!vault) return res.status(400).json({ error: "vault not initialized — call /vaults/me/init first" });
     if (vault.decoy_completed) return res.status(409).json({ error: "decoy already uploaded" });
@@ -134,6 +140,11 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
   // per-account vault storage cap (accounts.vault_storage_limit_bytes /
   // vault_bytes_used, spec Section 6.1).
   router.post("/vaults/me/items", requireAuth(supabaseAdmin), rawBody, async (req, res) => {
+    const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
+    if (!profileCheck.allowed) {
+      return res.status(403).json({ error: profileCheck.reason });
+    }
+
     const vault = await getOwnVault(supabaseAdmin, req.auth!.accountId);
     if (!vault) return res.status(400).json({ error: "vault not initialized — call /vaults/me/init first" });
     if (!vault.decoy_completed) {

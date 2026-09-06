@@ -69,6 +69,22 @@ document.getElementById("resolve-election-form")!.addEventListener("submit", asy
   }
 });
 
+// --- Log an achievement (admin-only, on a member's behalf) ---------------------
+document.getElementById("achievement-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("achievement-result")!;
+  const accountId = (document.getElementById("achievement-account-id") as HTMLInputElement).value;
+  const title = (document.getElementById("achievement-title") as HTMLInputElement).value;
+  const description = (document.getElementById("achievement-description") as HTMLTextAreaElement).value;
+  try {
+    await apiPost("/tribe/achievements", { accountId, title, description });
+    el.innerHTML = `<div class="notice">Logged.</div>`;
+    (document.getElementById("achievement-form") as HTMLFormElement).reset();
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
 // --- Backups -------------------------------------------------------------------
 async function loadBackupStatus() {
   const el = document.getElementById("backup-status")!;

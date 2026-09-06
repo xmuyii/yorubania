@@ -6,6 +6,7 @@ import {
   applyDefaultGrantsForRelationship,
   syncDefaultGrantsForPerson,
 } from "../relationships/default-grants";
+import { checkProfileRequirement } from "../policies/profile-requirements";
 
 const RELATIONSHIP_TYPES = [
   "parent_child",
@@ -79,6 +80,11 @@ export function inviteRoutes(supabaseAdmin: SupabaseClient) {
   // apply as early as possible rather than waiting for claim.
   // --------------------------------------------------------------------
   router.post("/members/invite-relative", requireAuth(supabaseAdmin), async (req, res) => {
+    const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
+    if (!profileCheck.allowed) {
+      return res.status(403).json({ error: profileCheck.reason });
+    }
+
     const { fullName, relationshipType, inviterRole } = req.body ?? {};
 
     if (!fullName || typeof fullName !== "string") {

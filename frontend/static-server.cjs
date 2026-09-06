@@ -9,6 +9,6 @@ const server = http.createServer((req, res) => {
   return handler(req, res, { public: "dist" });
 });
 
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Yorubania frontend serving on port ${port}`);
 });

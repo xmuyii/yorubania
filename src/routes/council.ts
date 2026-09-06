@@ -213,6 +213,20 @@ export function councilRoutes(supabaseAdmin: SupabaseClient) {
         .update({ status: "resolved", resolved_account_id: winnerAccountId })
         .eq("id", election.id);
 
+      // A council seat carries admin privileges in addition to council
+      // authority (per decision) — never downgrades an existing
+      // superadmin. What happens to this admin grant when their term
+      // ends is still an open governance question (not yet decided), so
+      // deliberately not auto-revoked here.
+      const { data: winnerAccount } = await supabaseAdmin
+        .from("accounts")
+        .select("role")
+        .eq("id", winnerAccountId)
+        .single();
+      if (winnerAccount?.role === "member") {
+        await supabaseAdmin.from("accounts").update({ role: "admin" }).eq("id", winnerAccountId);
+      }
+
       // Announce the winner — the news feed is how members learn who's
       // now on the council, not just an admin panel.
       const { data: winnerPerson } = await supabaseAdmin

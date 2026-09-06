@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px; max-width: 520px;">
+      <section class="section">
+        <p class="section-label">Your profile</p>
+        <h1 id="greeting">Hello</h1>
+        <p class="muted">
+          Adult members need a profile photo before they can add relationships
+          or upload anything (vault or family media). Members registered as
+          under 18 are exempt.
+        </p>
+
+        <label for="photo-file">Profile photo</label>
+        <input type="file" id="photo-file" accept="image/*" />
+        <button id="photo-submit">Upload &amp; set as profile photo</button>
+        <div id="photo-message"></div>
+      </section>
+
+      <section class="section">
+        <h2>Date of birth</h2>
+        <p class="muted">
+          Used only to determine the photo requirement and to show your
+          birth year on the Yorubania timeline — your age is private,
+          visible only to your family and admins.
+        </p>
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob" />
+        <button id="dob-submit">Save</button>
+        <div id="dob-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/profile.ts"></script>
+  </body>
+</html>

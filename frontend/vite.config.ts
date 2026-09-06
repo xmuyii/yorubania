@@ -21,6 +21,8 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         claim: resolve(__dirname, "claim.html"),
         dashboard: resolve(__dirname, "dashboard.html"),
+        profile: resolve(__dirname, "profile.html"),
+        narrative: resolve(__dirname, "narrative.html"),
         vault: resolve(__dirname, "vault.html"),
         familyTree: resolve(__dirname, "family-tree.html"),
         familyMedia: resolve(__dirname, "family-media.html"),

@@ -1,11 +1,37 @@
 import { requireSession } from "../auth";
-import { apiGet, apiPost } from "../api";
+import { apiGet, apiPost, apiGetBinary } from "../api";
 import { renderNav } from "../nav";
 
 await requireSession();
 renderNav("/dashboard.html");
 
-// --- Mission / timeline ---------------------------------------------------
+const imageCache = new Map<string, string>();
+async function imageObjectUrl(mediaAssetId: string): Promise<string | null> {
+  if (imageCache.has(mediaAssetId)) return imageCache.get(mediaAssetId)!;
+  try {
+    const { bytes } = await apiGetBinary(`/media/${mediaAssetId}/download`);
+    const blob = new Blob([bytes as unknown as BlobPart]);
+    const url = URL.createObjectURL(blob);
+    imageCache.set(mediaAssetId, url);
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+async function loadBadge() {
+  try {
+    const me = await apiGet("/accounts/me");
+    const parts = [me.person?.fullName ?? "Member"];
+    if (me.councilSeat) parts.push(`Council Seat ${me.councilSeat.seatNumber}`);
+    if (me.role === "superadmin") parts.push("Superadmin");
+    else if (me.role === "admin") parts.push("Admin");
+    document.getElementById("user-badge")!.textContent = parts.join(" · ");
+  } catch {
+    // non-fatal
+  }
+}
+
 async function loadOverview() {
   try {
     const data = await apiGet("/tribe/overview");
@@ -27,47 +53,74 @@ async function loadOverview() {
   }
 }
 
-// --- Leadership ------------------------------------------------------------
 async function loadLeadership() {
   const el = document.getElementById("leadership-seals")!;
   try {
     const data = await apiGet("/tribe/leadership");
-    const founderSeal = data.founder
-      ? sealHtml(data.founder.fullName, "Founder")
-      : sealHtml(null, "Founder");
-
-    const seatSeals = data.councilSeats
-      .map((seat: any) =>
-        seat.occupant
-          ? sealHtml(seat.occupant.fullName, `Seat ${seat.seatNumber}`)
-          : sealHtml(null, `Seat ${seat.seatNumber} · vacant`)
-      )
-      .join("");
-
-    el.innerHTML = founderSeal + seatSeals;
+    el.innerHTML = "";
+    el.appendChild(await sealElement(data.founder, "Founder"));
+    for (const seat of data.councilSeats) {
+      el.appendChild(
+        await sealElement(
+          seat.occupant
+            ? { fullName: seat.occupant.fullName, profileImageMediaId: seat.occupant.profileImageMediaId }
+            : null,
+          seat.occupant ? `Seat ${seat.seat_number}` : `Seat ${seat.seat_number} · vacant`
+        )
+      );
+    }
   } catch {
     el.innerHTML = `<p class="muted">Leadership information isn't available yet.</p>`;
   }
 }
 
-function sealHtml(name: string | null, caption: string): string {
-  const initials = name
-    ? name
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-    : "";
-  return `
-    <div class="seal">
-      <div class="ring ${name ? "" : "vacant"}">${initials}</div>
-      <div class="name">${name ?? caption}</div>
-      ${name ? `<div class="name muted">${caption}</div>` : ""}
-    </div>
-  `;
+async function sealElement(
+  person: { fullName: string; profileImageMediaId?: string | null } | null,
+  caption: string
+): Promise<HTMLElement> {
+  const wrap = document.createElement("div");
+  wrap.className = "seal";
+
+  const ring = document.createElement("div");
+  ring.className = `ring ${person ? "" : "vacant"}`;
+
+  if (person?.profileImageMediaId) {
+    const url = await imageObjectUrl(person.profileImageMediaId);
+    if (url) {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = person.fullName;
+      ring.appendChild(img);
+    } else {
+      ring.textContent = initials(person.fullName);
+    }
+  } else if (person) {
+    ring.textContent = initials(person.fullName);
+  }
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = person ? person.fullName : caption;
+
+  wrap.appendChild(ring);
+  wrap.appendChild(name);
+  if (person) {
+    const captionEl = document.createElement("div");
+    captionEl.className = "name muted";
+    captionEl.textContent = caption;
+    wrap.appendChild(captionEl);
+  }
+  return wrap;
 }
 
-// --- Invite a relative -------------------------------------------------------
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("");
+}
+
 const relationshipSelect = document.getElementById("relationship-type") as HTMLSelectElement;
 const inviterRoleWrap = document.getElementById("inviter-role-wrap")!;
 function syncInviterRoleVisibility() {
@@ -98,7 +151,6 @@ document.getElementById("invite-form")!.addEventListener("submit", async (e) => 
   }
 });
 
-// --- Announcements -----------------------------------------------------------
 async function loadAnnouncements() {
   const el = document.getElementById("announcements-list")!;
   try {
@@ -122,20 +174,19 @@ async function loadAnnouncements() {
   }
 }
 
-// --- Achievements --------------------------------------------------------------
 async function loadAchievements() {
   const el = document.getElementById("achievements-list")!;
   try {
     const data = await apiGet("/tribe/achievements");
     if (data.achievements.length === 0) {
-      el.innerHTML = "Nothing shared yet — be the first.";
+      el.innerHTML = "Nothing logged yet.";
       return;
     }
     el.innerHTML = data.achievements
       .map(
         (a: any) => `
       <div class="row" style="display:block;">
-        <strong>${a.title}</strong>
+        <strong>${a.subjectFullName ?? "A member"}</strong> — ${a.title}
         ${a.description ? `<p class="muted" style="margin:4px 0 0;">${a.description}</p>` : ""}
       </div>`
       )
@@ -145,20 +196,7 @@ async function loadAchievements() {
   }
 }
 
-document.getElementById("achievement-form")!.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const title = (document.getElementById("achievement-title") as HTMLInputElement).value;
-  const description = (document.getElementById("achievement-description") as HTMLTextAreaElement).value;
-  try {
-    await apiPost("/tribe/achievements", { title, description });
-    (document.getElementById("achievement-title") as HTMLInputElement).value = "";
-    (document.getElementById("achievement-description") as HTMLTextAreaElement).value = "";
-    loadAchievements();
-  } catch (err: any) {
-    alert(err.message);
-  }
-});
-
+loadBadge();
 loadOverview();
 loadLeadership();
 loadAnnouncements();

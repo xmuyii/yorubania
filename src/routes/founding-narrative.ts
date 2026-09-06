@@ -127,6 +127,15 @@ export function foundingNarrativeRoutes(supabaseAdmin: SupabaseClient) {
       });
       if (error) return res.status(500).json({ error: "failed to appoint council member" });
 
+      const { data: appointedAccount } = await supabaseAdmin
+        .from("accounts")
+        .select("role")
+        .eq("id", accountId)
+        .single();
+      if (appointedAccount?.role === "member") {
+        await supabaseAdmin.from("accounts").update({ role: "admin" }).eq("id", accountId);
+      }
+
       const { data: person } = await supabaseAdmin
         .from("persons")
         .select("full_name")

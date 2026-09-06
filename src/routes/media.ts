@@ -6,6 +6,7 @@ import { createSupabaseDbClient } from "../auth/supabase-adapter";
 import { canAccess } from "../auth/authorization";
 import { uploadObject, downloadObject, deleteObject } from "../storage/supabase-storage";
 import { sha256Hex } from "./vault";
+import { checkProfileRequirement } from "../policies/profile-requirements";
 
 /**
  * Family-page media — NOT vault content. Stored as-is (original bytes);
@@ -50,6 +51,11 @@ export function mediaRoutes(supabaseAdmin: SupabaseClient) {
   }
 
   router.post("/media", requireAuth(supabaseAdmin), rawBody, async (req, res) => {
+    const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
+    if (!profileCheck.allowed) {
+      return res.status(403).json({ error: profileCheck.reason });
+    }
+
     const subjectPersonId = req.header("x-subject-person-id");
     const originalFormat = req.header("x-original-format");
     if (!subjectPersonId || !originalFormat) {

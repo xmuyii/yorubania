@@ -69,6 +69,14 @@ app.use(
 // specific route.
 app.use(express.json());
 
+// Simple health-check route. Railway (and you, sanity-checking in a
+// browser) can hit the bare domain root and get a real response instead
+// of a 404 — useful for confirming the container is actually reachable,
+// separate from any specific /api endpoint.
+app.get("/", (_req, res) => {
+  res.status(200).json({ status: "ok", service: "yorubania-backend" });
+});
+
 app.use("/api", inviteRoutes(supabaseAdmin));
 app.use("/api", tribeRoutes(supabaseAdmin));
 app.use("/api", foundingNarrativeRoutes(supabaseAdmin));
@@ -86,6 +94,6 @@ app.use("/api", accountRoutes(supabaseAdmin));
 app.use("/api", familyTreeRoutes(supabaseAdmin));
 
 const port = process.env.PORT ?? 3000;
-app.listen(port, () => {
+app.listen(Number(port), "0.0.0.0", () => {
   console.log(`Yorubania API listening on port ${port}`);
 });

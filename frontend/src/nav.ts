@@ -7,9 +7,11 @@ export function renderNav(current: string) {
 
   const links = [
     { href: "/dashboard.html", label: "Dashboard" },
+    { href: "/profile.html", label: "Profile" },
     { href: "/family-tree.html", label: "Family Tree" },
     { href: "/vault.html", label: "Vault" },
     { href: "/family-media.html", label: "Family Media" },
+    { href: "/narrative.html", label: "Narrative" },
     { href: "/council.html", label: "Council" },
     { href: "/families.html", label: "Families" },
     { href: "/directory.html", label: "Directory" },

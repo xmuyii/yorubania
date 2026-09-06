@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Founding Narrative — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Yorubania</p>
+        <h1 id="narrative-title">Founding Narrative</h1>
+        <div id="narrative-display" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="editor-section" style="display:none">
+        <h2>Publish a new version</h2>
+        <p class="muted">Visible to the council only. Publishing creates a new version and makes it current — the old version is kept in history, not overwritten.</p>
+        <form id="narrative-form">
+          <label for="title">Title</label>
+          <input type="text" id="title" required />
+          <label for="origin-story">Origin story</label>
+          <textarea id="origin-story" rows="6"></textarea>
+          <label for="founding-principles">Founding principles</label>
+          <textarea id="founding-principles" rows="4"></textarea>
+          <label for="relationship-to-yoruba">Relationship to the Yoruba tribe</label>
+          <textarea id="relationship-to-yoruba" rows="3"></textarea>
+          <label for="founding-date-or-era">Founding date or era</label>
+          <input type="text" id="founding-date-or-era" />
+          <label for="founding-location">Founding location</label>
+          <input type="text" id="founding-location" />
+          <button type="submit">Publish new version</button>
+        </form>
+        <div id="editor-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/narrative.ts"></script>
+  </body>
+</html>
