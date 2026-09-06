@@ -37,12 +37,27 @@ const app = express();
 
 // The frontend is hosted on a different origin from this API (a separate
 // Railway service or a static host like Vercel/Netlify), so CORS must be
-// explicit. FRONTEND_URL should be set in production; without it, this
-// falls back to allowing any origin, which is fine for early testing but
-// should be tightened before real launch.
+// explicit. FRONTEND_URL should be set in production — supports a
+// comma-separated list if you ever have more than one frontend origin
+// (e.g. a staging URL alongside production). Trailing slashes and
+// whitespace are normalized away, since a mismatch there is a common,
+// hard-to-spot cause of CORS failures. Falls back to allowing any origin
+// if unset, which is fine for early testing but should be tightened
+// before real launch.
+const allowedOrigins = (process.env.FRONTEND_URL ?? "")
+  .split(",")
+  .map((o) => o.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ?? true,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true); // non-browser requests (curl, health checks)
+      if (allowedOrigins.length === 0) return callback(null, true); // no restriction configured yet
+      const normalized = origin.replace(/\/$/, "");
+      if (allowedOrigins.includes(normalized)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} is not in FRONTEND_URL`));
+    },
     exposedHeaders: ["x-iv", "x-original-format"],
   })
 );
