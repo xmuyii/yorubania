@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Family Media — Yorubania</title>
+    <title>Album — Yorubania</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -11,26 +11,27 @@
     <div class="container" style="padding-top: 40px;">
       <section class="section">
         <p class="section-label">Family page</p>
-        <h1>Photos &amp; documents</h1>
+        <h1 id="album-heading">Album</h1>
         <p class="muted">
           Not encrypted like your vault — this is the shared family record
-          visible to whoever you've granted access to (siblings see their
-          nieces/nephews by default, unless you've locked something away).
-          Stored as uploaded for now; long-term archival format conversion
-          is on the roadmap.
+          visible to whoever you've granted access to (siblings and
+          spouses see nieces/nephews and children by default, unless
+          you've locked something away). Stored as uploaded for now;
+          long-term archival format conversion is on the roadmap.
         </p>
 
-        <label for="subject-person-id">Whose page is this for?</label>
+        <label for="subject-person-id">Whose album is this?</label>
         <input type="text" id="subject-person-id" placeholder="Your own person ID (auto-filled below)" />
         <p class="muted" id="self-hint"></p>
 
-        <label for="media-file">File</label>
+        <label for="media-file">Add a photo or document</label>
         <input type="file" id="media-file" />
         <button id="media-submit">Upload</button>
+        <div class="upload-progress-track" id="media-progress-track"><div class="upload-progress-fill" id="media-progress-fill"></div></div>
+        <p class="upload-status" id="media-status"></p>
       </section>
 
       <section class="section">
-        <h2>Uploaded items</h2>
         <div id="media-list" class="muted">Loading…</div>
       </section>
 

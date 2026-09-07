@@ -1,5 +1,5 @@
 import { requireSession } from "../auth";
-import { apiGet, apiPost, apiPostBinary, apiGetBinary } from "../api";
+import { apiGet, apiPost, apiPostBinaryWithProgress, apiGetBinary } from "../api";
 import { renderNav } from "../nav";
 import { bytesToBase64, base64ToBytes } from "../base64";
 import {
@@ -81,23 +81,44 @@ document.getElementById("decoy-submit")!.addEventListener("click", async () => {
   message.innerHTML = "";
   const fileInput = document.getElementById("decoy-file") as HTMLInputElement;
   const file = fileInput.files?.[0];
+  const button = document.getElementById("decoy-submit") as HTMLButtonElement;
+  const track = document.getElementById("decoy-progress-track")!;
+  const fill = document.getElementById("decoy-progress-fill") as HTMLElement;
+  const status = document.getElementById("decoy-status")!;
+
   if (!file || !masterKey) {
     showError(new Error("Choose a file first (and make sure your vault is unlocked)."));
     return;
   }
 
+  button.disabled = true;
+  track.classList.add("active");
+  fill.style.width = "0%";
+  status.textContent = "Encrypting…";
+
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const { ciphertext, iv } = await encryptVaultItem(masterKey, bytes);
-    await apiPostBinary("/vaults/me/decoy", ciphertext, {
-      "x-iv": bytesToBase64(iv),
-      "Content-Type": "application/octet-stream",
-    });
+    status.textContent = "Uploading…";
+    await apiPostBinaryWithProgress(
+      "/vaults/me/decoy",
+      ciphertext,
+      { "x-iv": bytesToBase64(iv), "x-original-format": file.type || "application/octet-stream" },
+      (percent) => {
+        fill.style.width = `${percent}%`;
+        status.textContent = `Uploading… ${percent}%`;
+      }
+    );
+    status.textContent = "Done.";
     decoySection.style.display = "none";
     itemsSection.style.display = "block";
     loadItems();
   } catch (err) {
+    status.textContent = "";
     showError(err);
+  } finally {
+    button.disabled = false;
+    track.classList.remove("active");
   }
 });
 
@@ -126,22 +147,43 @@ document.getElementById("item-submit")!.addEventListener("click", async () => {
   message.innerHTML = "";
   const fileInput = document.getElementById("item-file") as HTMLInputElement;
   const file = fileInput.files?.[0];
+  const button = document.getElementById("item-submit") as HTMLButtonElement;
+  const track = document.getElementById("item-progress-track")!;
+  const fill = document.getElementById("item-progress-fill") as HTMLElement;
+  const status = document.getElementById("item-status")!;
+
   if (!file || !masterKey) {
     showError(new Error("Choose a file first."));
     return;
   }
 
+  button.disabled = true;
+  track.classList.add("active");
+  fill.style.width = "0%";
+  status.textContent = "Encrypting…";
+
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const { ciphertext, iv } = await encryptVaultItem(masterKey, bytes);
-    await apiPostBinary("/vaults/me/items", ciphertext, {
-      "x-iv": bytesToBase64(iv),
-      "Content-Type": "application/octet-stream",
-    });
+    status.textContent = "Uploading…";
+    await apiPostBinaryWithProgress(
+      "/vaults/me/items",
+      ciphertext,
+      { "x-iv": bytesToBase64(iv), "x-original-format": file.type || "application/octet-stream" },
+      (percent) => {
+        fill.style.width = `${percent}%`;
+        status.textContent = `Uploading… ${percent}%`;
+      }
+    );
+    status.textContent = "Done.";
     fileInput.value = "";
     loadItems();
   } catch (err) {
+    status.textContent = "";
     showError(err);
+  } finally {
+    button.disabled = false;
+    track.classList.remove("active");
   }
 });
 
@@ -182,17 +224,33 @@ async function downloadItem(itemId: string) {
   try {
     const { bytes, headers } = await apiGetBinary(`/vaults/me/items/${itemId}/download`);
     const iv = base64ToBytes(headers.get("x-iv") ?? "");
+    const originalFormat = headers.get("x-original-format") || "application/octet-stream";
     const plaintext = await decryptVaultItem(masterKey, bytes, iv);
-    const blob = new Blob([plaintext as unknown as BlobPart]);
+    const blob = new Blob([plaintext as unknown as BlobPart], { type: originalFormat });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `vault-item-${itemId.slice(0, 8)}`;
+    a.download = `vault-item-${itemId.slice(0, 8)}${extensionFor(originalFormat)}`;
     a.click();
     URL.revokeObjectURL(url);
   } catch (err) {
     showError(err);
   }
+}
+
+/** Best-effort mime-type → file extension, so downloads open correctly. */
+function extensionFor(mimeType: string): string {
+  const map: Record<string, string> = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/gif": ".gif",
+    "image/webp": ".webp",
+    "application/pdf": ".pdf",
+    "text/plain": ".txt",
+    "video/mp4": ".mp4",
+    "audio/mpeg": ".mp3",
+  };
+  return map[mimeType] ?? "";
 }
 
 init();

@@ -118,6 +118,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
     if (vault.decoy_completed) return res.status(409).json({ error: "decoy already uploaded" });
 
     const iv = req.header("x-iv");
+    const originalFormat = req.header("x-original-format") ?? "application/octet-stream";
     if (!iv) return res.status(400).json({ error: "x-iv header is required" });
     if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
       return res.status(400).json({ error: "request body must be the encrypted decoy bytes" });
@@ -133,6 +134,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
       storage_path: path,
       size_bytes: req.body.length,
       encrypted: true,
+      original_format: originalFormat,
     });
     if (itemError) return res.status(500).json({ error: "failed to record decoy item" });
 
@@ -156,6 +158,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
     }
 
     const iv = req.header("x-iv");
+    const originalFormat = req.header("x-original-format") ?? "application/octet-stream";
     if (!iv) return res.status(400).json({ error: "x-iv header is required" });
     if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
       return res.status(400).json({ error: "request body must be the encrypted item bytes" });
@@ -177,7 +180,14 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
 
     const { data: item, error: itemInsertError } = await supabaseAdmin
       .from("vault_items")
-      .insert({ vault_id: vault.id, is_decoy: false, storage_path: "", size_bytes: req.body.length, encrypted: true })
+      .insert({
+        vault_id: vault.id,
+        is_decoy: false,
+        storage_path: "",
+        size_bytes: req.body.length,
+        encrypted: true,
+        original_format: originalFormat,
+      })
       .select("id")
       .single();
     if (itemInsertError || !item) {
@@ -215,7 +225,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
 
     const { data, error } = await supabaseAdmin
       .from("vault_items")
-      .select("id, is_decoy, size_bytes, created_at")
+      .select("id, is_decoy, size_bytes, original_format, created_at")
       .eq("vault_id", vault.id)
       .order("created_at", { ascending: false });
     if (error) return res.status(500).json({ error: "failed to list vault items" });
@@ -230,7 +240,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
 
     const { data: item } = await supabaseAdmin
       .from("vault_items")
-      .select("id, storage_path")
+      .select("id, storage_path, original_format")
       .eq("id", req.params.itemId)
       .eq("vault_id", vault.id)
       .maybeSingle();
@@ -249,6 +259,7 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
     });
 
     res.setHeader("x-iv", ivBytes ? ivBytes.toString() : "");
+    res.setHeader("x-original-format", item.original_format ?? "application/octet-stream");
     res.setHeader("content-type", "application/octet-stream");
     return res.send(bytes);
   });

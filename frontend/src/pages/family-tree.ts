@@ -156,9 +156,7 @@ function render(nodes: TreeNode[], edges: TreeEdge[], rootPersonId: string) {
     const g = document.createElementNS(ns, "g");
     g.setAttribute("style", "cursor:pointer");
     g.addEventListener("click", () => {
-      window.location.href = `/family-media.html`;
-      // Note: a richer version would deep-link with ?person=<id>; kept
-      // simple for now since family-media.html takes a person ID input.
+      window.location.href = `/family-media.html?person=${node.id}`;
     });
 
     const circle = document.createElementNS(ns, "circle");

@@ -285,7 +285,76 @@ button.danger {
   font-size: 0.78rem;
 }
 
-/* --- Timeline ------------------------------------------------------------ */
+/* --- Upload progress ------------------------------------------------------ */
+
+.upload-progress-track {
+  height: 6px;
+  background: var(--line);
+  border-radius: 3px;
+  margin: 10px 0;
+  overflow: hidden;
+  display: none;
+}
+
+.upload-progress-track.active {
+  display: block;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: var(--evergreen);
+  width: 0%;
+  transition: width 0.15s ease-out;
+}
+
+.upload-status {
+  font-size: 0.85rem;
+  color: var(--indigo-soft);
+}
+
+/* --- Album grid ------------------------------------------------------------ */
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.album-item {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--paper-raised);
+  cursor: pointer;
+  text-align: center;
+}
+
+.album-item .thumb {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: var(--line);
+}
+
+.album-item .thumb-placeholder {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  color: var(--indigo-soft);
+  font-size: 0.8rem;
+}
+
+.album-item .caption {
+  font-size: 0.75rem;
+  padding: 6px 8px;
+  color: rgba(27, 27, 24, 0.7);
+}
+
 
 .timeline-track {
   height: 3px;

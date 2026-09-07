@@ -49,6 +49,8 @@
         <label for="decoy-file">Decoy file</label>
         <input type="file" id="decoy-file" />
         <button id="decoy-submit">Upload decoy</button>
+        <div class="upload-progress-track" id="decoy-progress-track"><div class="upload-progress-fill" id="decoy-progress-fill"></div></div>
+        <p class="upload-status" id="decoy-status"></p>
       </section>
 
       <section class="section" id="unlock-section" style="display:none">
@@ -63,6 +65,8 @@
         <label for="item-file">Add a file</label>
         <input type="file" id="item-file" />
         <button id="item-submit">Encrypt &amp; upload</button>
+        <div class="upload-progress-track" id="item-progress-track"><div class="upload-progress-fill" id="item-progress-fill"></div></div>
+        <p class="upload-status" id="item-status"></p>
         <hr class="hairline" />
         <div id="items-list" class="muted">Loading…</div>
       </section>

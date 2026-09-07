@@ -1,5 +1,5 @@
 import { requireSession } from "../auth";
-import { apiGet, apiPostBinary, apiPatch } from "../api";
+import { apiGet, apiPostBinaryWithProgress, apiPatch } from "../api";
 import { renderNav } from "../nav";
 
 await requireSession();
@@ -24,19 +24,28 @@ document.getElementById("photo-submit")!.addEventListener("click", async () => {
   el.innerHTML = "";
   const fileInput = document.getElementById("photo-file") as HTMLInputElement;
   const file = fileInput.files?.[0];
+  const button = document.getElementById("photo-submit") as HTMLButtonElement;
   if (!file) {
     el.innerHTML = `<div class="error">Choose an image first.</div>`;
     return;
   }
+  button.disabled = true;
+  el.innerHTML = `<p class="upload-status">Uploading… 0%</p>`;
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
-    await apiPostBinary("/persons/me/profile-photo", bytes, {
-      "x-original-format": file.type || "image/jpeg",
-      "Content-Type": "application/octet-stream",
-    });
+    await apiPostBinaryWithProgress(
+      "/persons/me/profile-photo",
+      bytes,
+      { "x-original-format": file.type || "image/jpeg" },
+      (percent) => {
+        el.innerHTML = `<p class="upload-status">Uploading… ${percent}%</p>`;
+      }
+    );
     el.innerHTML = `<div class="notice">Profile photo updated.</div>`;
   } catch (err: any) {
     el.innerHTML = `<div class="error">${err.message}</div>`;
+  } finally {
+    button.disabled = false;
   }
 });
 

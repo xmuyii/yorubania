@@ -52,6 +52,56 @@ export async function apiDelete(path: string): Promise<void> {
   if (!res.ok) throw new Error((await safeError(res)) ?? `DELETE ${path} failed (${res.status})`);
 }
 
+/**
+ * For binary uploads with real progress feedback (vault items, media,
+ * profile photos). Uses XHR rather than fetch because fetch has no
+ * upload-progress event — this is the one place raw XHR is worth it.
+ */
+export async function apiPostBinaryWithProgress(
+  path: string,
+  bytes: Uint8Array,
+  extraHeaders: Record<string, string>,
+  onProgress?: (percent: number) => void
+): Promise<any> {
+  const token = await getAccessToken();
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${BASE_URL}${path}`);
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    for (const [key, value] of Object.entries(extraHeaders)) {
+      xhr.setRequestHeader(key, value);
+    }
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(xhr.responseText ? JSON.parse(xhr.responseText) : null);
+        } catch {
+          resolve(null);
+        }
+      } else {
+        let message = `Upload failed (${xhr.status})`;
+        try {
+          const parsed = JSON.parse(xhr.responseText);
+          if (parsed.error) message = parsed.error;
+        } catch {
+          // keep default message
+        }
+        reject(new Error(message));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+
+    xhr.send(bytes as unknown as XMLHttpRequestBodyInit);
+  });
+}
+
 /** For binary uploads (vault items, media) — raw bytes, not JSON. */
 export async function apiPostBinary(
   path: string,
