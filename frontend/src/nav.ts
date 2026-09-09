@@ -11,10 +11,16 @@ export function renderNav(current: string) {
     { href: "/family-tree.html", label: "Family Tree" },
     { href: "/vault.html", label: "Vault" },
     { href: "/family-media.html", label: "Family Media" },
+    { href: "/book.html", label: "Our History" },
+    { href: "/life-goals.html", label: "Life Goals" },
     { href: "/narrative.html", label: "Narrative" },
+    { href: "/rules.html", label: "Rules" },
+    { href: "/documents.html", label: "Documents" },
     { href: "/council.html", label: "Council" },
     { href: "/families.html", label: "Families" },
     { href: "/directory.html", label: "Directory" },
+    { href: "/migration.html", label: "Migration" },
+    { href: "/settings.html", label: "Settings" },
   ];
 
   el.innerHTML = `

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rules — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Eternal · Unchanging</p>
+        <h1>Spiritual Rules</h1>
+        <p class="muted">
+          Set once, by the founder, and permanent — these can never be
+          edited or removed, by anyone, ever. Enforced by the database
+          itself, not just by policy.
+        </p>
+        <div id="spiritual-list" class="muted">Loading…</div>
+
+        <div id="spiritual-form-section" style="display:none; margin-top: 24px;">
+          <h3>Add a spiritual rule</h3>
+          <p class="muted">This action is permanent the moment you submit it.</p>
+          <form id="spiritual-form">
+            <label for="spiritual-title">Title</label>
+            <input type="text" id="spiritual-title" required />
+            <label for="spiritual-body">Text</label>
+            <textarea id="spiritual-body" rows="4" required></textarea>
+            <button type="submit">Set permanently</button>
+          </form>
+          <div id="spiritual-message"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="section-label">Governance</p>
+        <h1>General Rules</h1>
+        <p class="muted">Ordinary governance — versioned, editable by the council as needed.</p>
+        <div id="general-content" class="muted">Loading…</div>
+
+        <div id="general-form-section" style="display:none; margin-top: 24px;">
+          <h3>Publish a new version</h3>
+          <form id="general-form">
+            <label for="general-title">Title</label>
+            <input type="text" id="general-title" required />
+            <label for="general-body">Text</label>
+            <textarea id="general-body" rows="6" required></textarea>
+            <button type="submit">Publish</button>
+          </form>
+          <div id="general-message"></div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/rules.ts"></script>
+  </body>
+</html>

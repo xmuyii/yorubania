@@ -169,4 +169,104 @@ document.getElementById("custodian-form")!.addEventListener("submit", async (e) 
   }
 });
 
+// --- Death verification ---------------------------------------------------
+document.getElementById("load-overdue")!.addEventListener("click", async () => {
+  const el = document.getElementById("overdue-list")!;
+  el.innerHTML = "Loading…";
+  try {
+    const data = await apiGet("/admin/death-checkins/overdue");
+    if (data.overdue.length === 0) {
+      el.innerHTML = "No overdue check-ins.";
+      return;
+    }
+    el.innerHTML = data.overdue
+      .map(
+        (a: any) =>
+          `<div class="row"><span><code>${a.id}</code></span><span class="muted">last check-in ${new Date(a.last_check_in_at).toLocaleDateString()}</span></div>`
+      )
+      .join("");
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+document.getElementById("open-case-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("death-message")!;
+  el.innerHTML = "";
+  try {
+    const data = await apiPost("/admin/death-verification-cases", {
+      accountId: (document.getElementById("case-account-id") as HTMLInputElement).value,
+    });
+    el.innerHTML = `<div class="notice">Case opened: <code>${data.id}</code></div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+document.getElementById("resolve-case-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("death-message")!;
+  el.innerHTML = "";
+  const caseId = (document.getElementById("resolve-case-id") as HTMLInputElement).value;
+  const outcome = (document.getElementById("resolve-outcome") as HTMLSelectElement).value;
+  const note = (document.getElementById("resolve-note") as HTMLTextAreaElement).value;
+  const extendedPresumptionNote = (document.getElementById("presumption-note") as HTMLTextAreaElement).value;
+  if (!confirm(`Resolve this case as "${outcome}"? This may trigger irreversible actions (vault destruction, succession).`)) return;
+  try {
+    const data = await apiPost(`/admin/death-verification-cases/${caseId}/resolve`, {
+      outcome,
+      note,
+      extendedPresumptionNote: outcome === "presumed_death" ? extendedPresumptionNote : undefined,
+    });
+    el.innerHTML = `<div class="notice">Resolved: ${JSON.stringify(data.succession ?? {})}</div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+// --- Succession -------------------------------------------------------------
+document.getElementById("resolve-succession-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("succession-message")!;
+  el.innerHTML = "";
+  const caseId = (document.getElementById("succession-case-id") as HTMLInputElement).value;
+  try {
+    const data = await apiPost(`/succession-cases/${caseId}/resolve`);
+    el.innerHTML = `<div class="notice">Winner: <code>${data.winnerAccountId}</code> (${data.method})</div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+// --- Migration cycles ---------------------------------------------------------
+document.getElementById("schedule-cycle-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("migration-admin-message")!;
+  el.innerHTML = "";
+  const opensAt = new Date((document.getElementById("cycle-opens-at") as HTMLInputElement).value).toISOString();
+  const decisionDeadline = new Date(
+    (document.getElementById("cycle-deadline") as HTMLInputElement).value
+  ).toISOString();
+  try {
+    const data = await apiPost("/admin/migration-cycles", { opensAt, decisionDeadline });
+    el.innerHTML = `<div class="notice">Scheduled: <code>${data.id}</code></div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+document.getElementById("open-cycle-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("migration-admin-message")!;
+  el.innerHTML = "";
+  const cycleId = (document.getElementById("open-cycle-id") as HTMLInputElement).value;
+  try {
+    await apiPost(`/admin/migration-cycles/${cycleId}/open`);
+    el.innerHTML = `<div class="notice">Decision window opened.</div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
 checkAccess();

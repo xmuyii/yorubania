@@ -17,6 +17,12 @@ import { backupRoutes } from "./routes/backup";
 import { adminManagementRoutes } from "./routes/admin-management";
 import { accountRoutes } from "./routes/accounts";
 import { familyTreeRoutes } from "./routes/family-tree";
+import { biographyRoutes } from "./routes/biography";
+import { migrationRoutes } from "./routes/migration";
+import { vaultDistributionRoutes } from "./routes/vault-distribution";
+import { deathRoutes } from "./routes/death";
+import { lifeGoalsRoutes } from "./routes/life-goals";
+import { rulesRoutes } from "./routes/rules";
 
 // SUPABASE_SERVICE_ROLE_KEY must only ever exist in server-side environment
 // variables (Railway config), never shipped to any client bundle.
@@ -92,6 +98,12 @@ app.use("/api", backupRoutes(supabaseAdmin));
 app.use("/api", adminManagementRoutes(supabaseAdmin));
 app.use("/api", accountRoutes(supabaseAdmin));
 app.use("/api", familyTreeRoutes(supabaseAdmin));
+app.use("/api", biographyRoutes(supabaseAdmin));
+app.use("/api", migrationRoutes(supabaseAdmin));
+app.use("/api", vaultDistributionRoutes(supabaseAdmin));
+app.use("/api", deathRoutes(supabaseAdmin));
+app.use("/api", lifeGoalsRoutes(supabaseAdmin));
+app.use("/api", rulesRoutes(supabaseAdmin));
 
 const port = process.env.PORT ?? 3000;
 app.listen(Number(port), "0.0.0.0", () => {

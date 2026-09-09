@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our History — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      .chapter-card {
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        background: var(--paper-raised);
+      }
+      .chapter-card.sealed {
+        border-left: 3px solid var(--brass);
+      }
+      .chapter-card h3 {
+        margin-bottom: 4px;
+      }
+      .chapter-meta {
+        font-size: 0.78rem;
+        color: rgba(27, 27, 24, 0.55);
+        margin-bottom: 10px;
+      }
+      .book-section {
+        margin: 32px 0;
+      }
+      .book-author {
+        font-family: var(--serif);
+        font-size: 1.2rem;
+        border-bottom: 1px solid var(--brass);
+        padding-bottom: 6px;
+        margin-bottom: 12px;
+      }
+      .book-chapter {
+        margin-bottom: 20px;
+      }
+      .book-chapter h4 {
+        font-family: var(--serif);
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Our History</p>
+        <h1>Your Chapters</h1>
+        <p class="muted">
+          Write your life in chapters. Seal a chapter when it's ready — a
+          sealed chapter can be unsealed and edited again ONLY by you,
+          unless it was sealed automatically after your death, in which
+          case it can never be unsealed by anyone.
+        </p>
+
+        <form id="new-chapter-form">
+          <label for="chapter-title">Title</label>
+          <input type="text" id="chapter-title" required />
+          <label for="chapter-body">Body</label>
+          <textarea id="chapter-body" rows="6" required></textarea>
+          <button type="submit">Add chapter (draft)</button>
+        </form>
+        <div id="chapter-message"></div>
+
+        <div id="my-chapters" class="muted" style="margin-top: 24px;">Loading…</div>
+      </section>
+
+      <section class="section">
+        <p class="section-label">The Book</p>
+        <h2 id="book-heading">Your lineage's book</h2>
+        <p class="muted">
+          Sealed chapters from your ancestors, oldest first, followed by
+          your own — assembled from whatever you have permission to see.
+        </p>
+        <label for="book-person-id">View book for (person ID, defaults to you)</label>
+        <input type="text" id="book-person-id" />
+        <button id="load-book">Open book</button>
+        <div id="book-content" class="muted" style="margin-top: 20px;"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/book.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px; max-width: 560px;">
+      <section class="section">
+        <p class="section-label">Presence</p>
+        <h1>Check in</h1>
+        <p class="muted">
+          A yearly confirmation that you're still here. Missing this for a
+          full year is what triggers death verification — check in
+          periodically to reset the clock.
+        </p>
+        <button id="check-in-btn">Check in now</button>
+        <div id="check-in-message"></div>
+      </section>
+
+      <section class="section">
+        <h2>Verification contact</h2>
+        <p class="muted">
+          Kept entirely separate from what your family sees — only the
+          verification admin can access this, and only for the purpose of
+          confirming death.
+        </p>
+        <form id="contact-form">
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" />
+          <label for="address">Address</label>
+          <input type="text" id="address" />
+          <label for="email">Email</label>
+          <input type="email" id="email" />
+          <label for="guarantor-name">Guarantor name</label>
+          <input type="text" id="guarantor-name" />
+          <label for="guarantor-phone">Guarantor phone</label>
+          <input type="text" id="guarantor-phone" />
+          <label for="notes">Notes for the verification admin</label>
+          <textarea id="notes" rows="3" placeholder="Who to contact, in what order, anything they should know"></textarea>
+          <button type="submit">Save</button>
+        </form>
+        <div id="contact-message"></div>
+      </section>
+
+      <section class="section">
+        <h2>Designated successor</h2>
+        <p class="muted">
+          Who takes control of your account if there's no dispute — set
+          this to skip the family-vote process entirely when the time
+          comes.
+        </p>
+        <form id="successor-form">
+          <label for="successor-account-id">Their account ID</label>
+          <input type="text" id="successor-account-id" required />
+          <button type="submit">Set successor</button>
+        </form>
+        <div id="successor-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/settings.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Life Goals — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px; max-width: 560px;">
+      <section class="section">
+        <p class="section-label">Private</p>
+        <h1>Your Life Goals</h1>
+        <p class="muted">
+          Summarize what you want to achieve in your lifetime into three
+          goals. No one can see these — not your spouse, siblings, or even
+          your parents — while you're alive. If a goal is unachieved when
+          you die, it's written into your chapter for your descendants to
+          read, so they understand what you were pulled toward.
+        </p>
+
+        <form id="goals-form">
+          <label for="goal-1">Goal 1</label>
+          <textarea id="goal-1" rows="2"></textarea>
+          <label><input type="checkbox" id="goal-1-achieved" style="width:auto; display:inline-block; margin-right:8px;" /> Achieved</label>
+
+          <label for="goal-2">Goal 2</label>
+          <textarea id="goal-2" rows="2"></textarea>
+          <label><input type="checkbox" id="goal-2-achieved" style="width:auto; display:inline-block; margin-right:8px;" /> Achieved</label>
+
+          <label for="goal-3">Goal 3</label>
+          <textarea id="goal-3" rows="2"></textarea>
+          <label><input type="checkbox" id="goal-3-achieved" style="width:auto; display:inline-block; margin-right:8px;" /> Achieved</label>
+
+          <button type="submit">Save</button>
+        </form>
+        <div id="message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/life-goals.ts"></script>
+  </body>
+</html>

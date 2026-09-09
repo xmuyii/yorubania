@@ -16,6 +16,8 @@ export interface DbClient {
   getPerson(personId: string): Promise<{ id: string; accountId: string | null } | null>;
   getRelationshipPath(fromAccountId: string, toPersonId: string): Promise<RelationshipStep[]>;
   getActiveGrants(subjectPersonId: string, granteeAccountId: string): Promise<AccessGrantRow[]>;
+  /** True if subjectPersonId is an ancestor of the person linked to accessorAccountId. */
+  isAncestorOf(subjectPersonId: string, accessorAccountId: string): Promise<boolean>;
 }
 
 export type RelationshipStep = {
@@ -76,8 +78,15 @@ export async function canAccess(
   // this specific accessor.
   const grants = await db.getActiveGrants(subjectPersonId, accessorAccountId);
 
-  const matchesScope = (grantScope: Scope) =>
-    grantScope === scope || grantScope === "full_record";
+  const matchesScope = (grantScope: Scope) => {
+    // life_goals is deliberately excluded from the general full_record
+    // wildcard: a spouse/sibling/parent might legitimately hold a
+    // full_record grant for ordinary content, but life goals must never
+    // be visible to them, only to actual descendants (via the
+    // ancestor-default rule below, which is scope-blind by design).
+    if (scope === "life_goals") return grantScope === "life_goals";
+    return grantScope === scope || grantScope === "full_record";
+  };
 
   // 2. Denials win outright, regardless of any other grant present.
   const denial = grants.find((g) => g.isDenial && matchesScope(g.scope));
@@ -91,7 +100,16 @@ export async function canAccess(
     return { allowed: true, reason: `active grant (${allow.id})` };
   }
 
-  // 4. Default deny.
+  // 4. Structural ancestor default: descendants see ancestor content by
+  // default, indefinitely far back, without needing a materialized grant
+  // for every generation — per decision. Only reached if no explicit
+  // denial matched above, so a blacklist still overrides this.
+  const isDescendant = await db.isAncestorOf(subjectPersonId, accessorAccountId);
+  if (isDescendant) {
+    return { allowed: true, reason: "ancestor-default (descendant of subject)" };
+  }
+
+  // 5. Default deny.
   return { allowed: false, reason: "no matching grant" };
 }
 

@@ -1,5 +1,5 @@
 import { requireSession } from "../auth";
-import { apiGet, apiPost, apiPostBinaryWithProgress, apiGetBinary } from "../api";
+import { apiGet, apiPost, apiPostBinaryWithProgress, apiGetBinary, apiPut } from "../api";
 import { renderNav } from "../nav";
 import { bytesToBase64, base64ToBytes } from "../base64";
 import {
@@ -203,6 +203,7 @@ async function loadItems() {
         <span>Item ${item.id.slice(0, 8)}… — ${(item.size_bytes / 1024).toFixed(1)} KB</span>
         <span>
           <button class="secondary" data-download="${item.id}">Download &amp; decrypt</button>
+          <button class="secondary" data-distribute="${item.id}">Inheritance</button>
         </span>
       </div>`
       )
@@ -213,6 +214,9 @@ async function loadItems() {
         const itemId = (btn as HTMLElement).dataset.download!;
         await downloadItem(itemId);
       });
+    });
+    el.querySelectorAll("[data-distribute]").forEach((btn) => {
+      btn.addEventListener("click", () => openDistributionPanel((btn as HTMLElement).dataset.distribute!));
     });
   } catch (err) {
     showError(err);
@@ -252,5 +256,86 @@ function extensionFor(mimeType: string): string {
   };
   return map[mimeType] ?? "";
 }
+
+// --- Vault item inheritance rule configuration -----------------------------
+let currentDistributionItemId: string | null = null;
+let pendingRecipients: { personId: string; cascadeToLineage: boolean }[] = [];
+
+async function openDistributionPanel(itemId: string) {
+  currentDistributionItemId = itemId;
+  pendingRecipients = [];
+  document.getElementById("distribution-item-label")!.textContent = `Item ${itemId.slice(0, 8)}…`;
+  document.getElementById("distribution-section")!.style.display = "block";
+
+  try {
+    const current = await apiGet(`/vaults/me/items/${itemId}/distribution`);
+    (document.getElementById("rule-type") as HTMLSelectElement).value = current.ruleType;
+    pendingRecipients = (current.recipients ?? []).map((r: any) => ({
+      personId: r.recipient_person_id,
+      cascadeToLineage: r.cascade_to_lineage,
+    }));
+  } catch {
+    (document.getElementById("rule-type") as HTMLSelectElement).value = "destroy";
+  }
+  syncRecipientsVisibility();
+  renderRecipients();
+}
+
+function syncRecipientsVisibility() {
+  const ruleType = (document.getElementById("rule-type") as HTMLSelectElement).value;
+  document.getElementById("recipients-wrap")!.style.display = ruleType === "specific_recipients" ? "block" : "none";
+}
+document.getElementById("rule-type")!.addEventListener("change", syncRecipientsVisibility);
+
+function renderRecipients() {
+  const el = document.getElementById("recipients-list")!;
+  if (pendingRecipients.length === 0) {
+    el.innerHTML = "";
+    return;
+  }
+  el.innerHTML = pendingRecipients
+    .map(
+      (r, i) =>
+        `<div class="row"><span><code>${r.personId.slice(0, 8)}…</code> ${r.cascadeToLineage ? "(+ their line)" : ""}</span><button class="secondary" data-remove-recipient="${i}">Remove</button></div>`
+    )
+    .join("");
+  el.querySelectorAll("[data-remove-recipient]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pendingRecipients.splice(Number((btn as HTMLElement).dataset.removeRecipient), 1);
+      renderRecipients();
+    });
+  });
+}
+
+document.getElementById("add-recipient")!.addEventListener("click", () => {
+  const personId = (document.getElementById("recipient-person-id") as HTMLInputElement).value.trim();
+  const cascadeToLineage = (document.getElementById("recipient-cascade") as HTMLInputElement).checked;
+  if (!personId) return;
+  pendingRecipients.push({ personId, cascadeToLineage });
+  (document.getElementById("recipient-person-id") as HTMLInputElement).value = "";
+  (document.getElementById("recipient-cascade") as HTMLInputElement).checked = false;
+  renderRecipients();
+});
+
+document.getElementById("save-distribution")!.addEventListener("click", async () => {
+  const el = document.getElementById("distribution-message")!;
+  el.innerHTML = "";
+  if (!currentDistributionItemId) return;
+  const ruleType = (document.getElementById("rule-type") as HTMLSelectElement).value;
+  try {
+    await apiPut(`/vaults/me/items/${currentDistributionItemId}/distribution`, {
+      ruleType,
+      recipients: ruleType === "specific_recipients" ? pendingRecipients : undefined,
+    });
+    el.innerHTML = `<div class="notice">Saved.</div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+document.getElementById("close-distribution")!.addEventListener("click", () => {
+  document.getElementById("distribution-section")!.style.display = "none";
+  currentDistributionItemId = null;
+});
 
 init();

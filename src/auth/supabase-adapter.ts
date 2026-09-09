@@ -35,6 +35,22 @@ export function createSupabaseDbClient(supabase: SupabaseClient): DbClient {
       }));
     },
 
+    async isAncestorOf(subjectPersonId: string, accessorAccountId: string): Promise<boolean> {
+      const { data: accessorPerson } = await supabase
+        .from("persons")
+        .select("id")
+        .eq("account_id", accessorAccountId)
+        .maybeSingle();
+      if (!accessorPerson) return false;
+
+      const { data, error } = await supabase.rpc("is_ancestor_of", {
+        ancestor_person_id: subjectPersonId,
+        descendant_person_id: accessorPerson.id,
+      });
+      if (error) return false;
+      return !!data;
+    },
+
     // Used for computing generation distance (e.g. to decide whether a
     // fallback default like "sibling sees sibling's children" applies before
     // an explicit AccessGrant row even exists). Implemented as a bounded

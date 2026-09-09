@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documents — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Library</p>
+        <h1>Documents concerning Yorubania</h1>
+        <p class="muted">Open to every member.</p>
+        <div id="documents-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="upload-section" style="display:none">
+        <h2>Add a document</h2>
+        <p class="muted">First upload the file to your family media, then reference its media ID here.</p>
+        <form id="document-form">
+          <label for="doc-title">Title</label>
+          <input type="text" id="doc-title" required />
+          <label for="doc-description">Description</label>
+          <textarea id="doc-description" rows="2"></textarea>
+          <label for="doc-media-id">Media asset ID</label>
+          <input type="text" id="doc-media-id" required />
+          <button type="submit">Add to library</button>
+        </form>
+        <div id="document-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/documents.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Migration — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Preservation</p>
+        <h1>Archival Migration</h1>
+        <p class="muted">
+          "Migration" doesn't mean moving to a different platform — it
+          means your chosen items get included in Yorubania's durable
+          offline/archival copy, with their formats re-verified so they
+          stay openable decades from now. This protects against platform
+          risk (outages, a company shutting down) and format obsolescence,
+          not a change of where your account lives.
+        </p>
+        <div id="cycle-status" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="decision-section" style="display:none">
+        <h2>Your decision for this cycle</h2>
+        <button id="decide-migrate">Include me — migrate my selected items</button>
+        <button class="secondary" id="decide-decline">Decline — wait for the next cycle</button>
+        <p class="muted">Declining doesn't delete or restrict anything day-to-day — it just means this round's archival snapshot won't include your items.</p>
+        <div id="decision-message"></div>
+      </section>
+
+      <section class="section">
+        <h2>Individual migration (any time)</h2>
+        <p class="muted">You don't have to wait for the 10-year cycle — preserve specific items whenever you want.</p>
+        <label for="item-type">Item type</label>
+        <select id="item-type">
+          <option value="media">Family media</option>
+          <option value="vault_item">Vault item</option>
+        </select>
+        <label for="item-id">Item ID</label>
+        <input type="text" id="item-id" />
+        <button id="add-selection">Add to my migration set</button>
+        <div id="selection-message"></div>
+        <div id="selections-list" class="muted" style="margin-top:16px;">Loading…</div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/migration.ts"></script>
+  </body>
+</html>

@@ -17,6 +17,63 @@
 
       <div id="admin-content" style="display:none">
         <section class="section">
+          <h2>Death verification</h2>
+          <button id="load-overdue">Check overdue check-ins</button>
+          <div id="overdue-list" class="muted" style="margin-top:12px;"></div>
+          <hr class="hairline" />
+          <form id="open-case-form">
+            <label for="case-account-id">Account ID to open a case for</label>
+            <input type="text" id="case-account-id" required />
+            <button type="submit">Open case</button>
+          </form>
+          <hr class="hairline" />
+          <form id="resolve-case-form">
+            <label for="resolve-case-id">Case ID to resolve</label>
+            <input type="text" id="resolve-case-id" required />
+            <label for="resolve-outcome">Outcome</label>
+            <select id="resolve-outcome">
+              <option value="confirmed_death">Confirmed death (documentary evidence)</option>
+              <option value="presumed_death">Presumed death (extended unreachable absence)</option>
+              <option value="closed_false_trigger">False trigger — they're fine</option>
+            </select>
+            <label for="resolve-note">Note</label>
+            <textarea id="resolve-note" rows="2"></textarea>
+            <label for="presumption-note">Extended-absence justification (required only for "presumed death")</label>
+            <textarea id="presumption-note" rows="2"></textarea>
+            <button type="submit">Resolve case</button>
+          </form>
+          <div id="death-message"></div>
+        </section>
+
+        <section class="section">
+          <h2>Succession</h2>
+          <form id="resolve-succession-form">
+            <label for="succession-case-id">Succession case ID</label>
+            <input type="text" id="succession-case-id" required />
+            <button type="submit">Tally votes and resolve</button>
+          </form>
+          <div id="succession-message"></div>
+        </section>
+
+        <section class="section">
+          <h2>Migration cycles</h2>
+          <form id="schedule-cycle-form">
+            <label for="cycle-opens-at">Opens at</label>
+            <input type="datetime-local" id="cycle-opens-at" required />
+            <label for="cycle-deadline">Decision deadline</label>
+            <input type="datetime-local" id="cycle-deadline" required />
+            <button type="submit">Schedule cycle</button>
+          </form>
+          <hr class="hairline" />
+          <form id="open-cycle-form">
+            <label for="open-cycle-id">Cycle ID to open decisions for</label>
+            <input type="text" id="open-cycle-id" required />
+            <button type="submit">Open decision window</button>
+          </form>
+          <div id="migration-admin-message"></div>
+        </section>
+
+        <section class="section">
           <h2>Register a person</h2>
           <p class="muted">For someone with no existing connection to a current member.</p>
           <form id="register-form">

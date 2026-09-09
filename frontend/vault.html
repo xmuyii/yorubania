@@ -71,6 +71,30 @@
         <div id="items-list" class="muted">Loading…</div>
       </section>
 
+      <section class="section" id="distribution-section" style="display:none">
+        <h2>Inheritance for this item</h2>
+        <p class="muted" id="distribution-item-label"></p>
+        <label for="rule-type">What happens to this item on death?</label>
+        <select id="rule-type">
+          <option value="destroy">Destroy — nothing survives (default if unset)</option>
+          <option value="all_descendants">Pass to all descendants</option>
+          <option value="immediate_children_only">Pass to immediate children only</option>
+          <option value="specific_recipients">Pass to specific children</option>
+        </select>
+
+        <div id="recipients-wrap" style="display:none">
+          <label for="recipient-person-id">Child's person ID</label>
+          <input type="text" id="recipient-person-id" />
+          <label><input type="checkbox" id="recipient-cascade" style="width:auto; display:inline-block; margin-right:8px;" /> Also pass to their whole line (their descendants too)</label>
+          <button id="add-recipient" type="button" class="secondary">Add recipient</button>
+          <div id="recipients-list" class="muted"></div>
+        </div>
+
+        <button id="save-distribution">Save inheritance rule</button>
+        <button id="close-distribution" type="button" class="secondary">Close</button>
+        <div id="distribution-message"></div>
+      </section>
+
       <div id="message"></div>
     </div>
 
