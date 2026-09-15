@@ -23,6 +23,16 @@ import { vaultDistributionRoutes } from "./routes/vault-distribution";
 import { deathRoutes } from "./routes/death";
 import { lifeGoalsRoutes } from "./routes/life-goals";
 import { rulesRoutes } from "./routes/rules";
+import { superadminRoutes } from "./routes/superadmin";
+import { accountMonitoringRoutes } from "./routes/account-monitoring";
+import { publicContactRoutes } from "./routes/public-contact";
+import { pollsRoutes } from "./routes/polls";
+import { accessGrantsRoutes } from "./routes/access-grants";
+import { enforcementRoutes } from "./routes/enforcement";
+import { relationshipStatusRoutes } from "./routes/relationship-status";
+import { educationRoutes } from "./routes/education";
+import { projectsRoutes } from "./routes/projects";
+import { ifatarotRoutes } from "./routes/ifatarot";
 
 // SUPABASE_SERVICE_ROLE_KEY must only ever exist in server-side environment
 // variables (Railway config), never shipped to any client bundle.
@@ -104,6 +114,16 @@ app.use("/api", vaultDistributionRoutes(supabaseAdmin));
 app.use("/api", deathRoutes(supabaseAdmin));
 app.use("/api", lifeGoalsRoutes(supabaseAdmin));
 app.use("/api", rulesRoutes(supabaseAdmin));
+app.use("/api", superadminRoutes(supabaseAdmin));
+app.use("/api", accountMonitoringRoutes(supabaseAdmin));
+app.use("/api", publicContactRoutes(supabaseAdmin));
+app.use("/api", pollsRoutes(supabaseAdmin));
+app.use("/api", accessGrantsRoutes(supabaseAdmin));
+app.use("/api", enforcementRoutes(supabaseAdmin));
+app.use("/api", relationshipStatusRoutes(supabaseAdmin));
+app.use("/api", educationRoutes(supabaseAdmin));
+app.use("/api", projectsRoutes(supabaseAdmin));
+app.use("/api", ifatarotRoutes(supabaseAdmin));
 
 const port = process.env.PORT ?? 3000;
 app.listen(Number(port), "0.0.0.0", () => {

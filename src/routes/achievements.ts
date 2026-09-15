@@ -49,10 +49,15 @@ export function achievementsRoutes(supabaseAdmin: SupabaseClient) {
 
       const { data: targetAccount } = await supabaseAdmin
         .from("accounts")
-        .select("id")
+        .select("id, directory_visible")
         .eq("id", accountId)
         .maybeSingle();
       if (!targetAccount) return res.status(404).json({ error: "account not found" });
+      if (!targetAccount.directory_visible) {
+        return res.status(422).json({
+          error: "this member must opt into the member directory before an achievement can be recorded for them",
+        });
+      }
 
       const { data, error } = await supabaseAdmin
         .from("community_achievements")

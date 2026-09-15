@@ -17,7 +17,9 @@ export function directoryRoutes(supabaseAdmin: SupabaseClient) {
 
     let query = supabaseAdmin
       .from("persons")
-      .select("id, full_name, profile_image_media_id, family_branch_id, account_id, accounts!inner(directory_visible)")
+      .select(
+        "id, full_name, profile_image_media_id, family_branch_id, account_id, telegram_handle, external_contact_note, accounts!inner(directory_visible)"
+      )
       .eq("accounts.directory_visible", true);
 
     if (search) {
@@ -33,6 +35,8 @@ export function directoryRoutes(supabaseAdmin: SupabaseClient) {
         fullName: p.full_name,
         profileImageMediaId: p.profile_image_media_id,
         familyBranchId: p.family_branch_id,
+        telegramHandle: p.telegram_handle,
+        externalContactNote: p.external_contact_note,
       })),
     });
   });

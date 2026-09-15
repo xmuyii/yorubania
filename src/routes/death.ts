@@ -382,13 +382,46 @@ async function processDeath(
     }
   }
 
-  // --- Succession ---
+  // --- Succession (account control) ---
   let successionOutcome: any;
   const { data: account } = await supabaseAdmin
     .from("accounts")
-    .select("designated_successor_account_id")
+    .select("designated_successor_account_id, role")
     .eq("id", accountId)
     .single();
+
+  // If the deceased was superadmin, that ROLE needs its own resolution,
+  // separate from ordinary account-control succession below (both run —
+  // a superadmin is still a person whose Person record and vault also
+  // need normal succession/distribution handling).
+  if (account?.role === "superadmin") {
+    if (account.designated_successor_account_id) {
+      await supabaseAdmin
+        .from("accounts")
+        .update({ role: "superadmin" })
+        .eq("id", account.designated_successor_account_id);
+      await supabaseAdmin.from("superadmin_transitions").insert({
+        previous_account_id: accountId,
+        new_account_id: account.designated_successor_account_id,
+        method: "designated_successor",
+      });
+    } else {
+      const { data: election } = await supabaseAdmin
+        .from("superadmin_elections")
+        .insert({ opened_reason: "founder/superadmin death, no designated successor" })
+        .select("id")
+        .single();
+      await supabaseAdmin.from("tribe_announcements").insert({
+        title: "Superadmin election opened",
+        body: "No designated successor was on record. The council must now elect a new superadmin.",
+        posted_by_account_id: accountId,
+        pinned: true,
+      });
+      void election;
+    }
+  }
+
+  // --- Succession ---
 
   if (account?.designated_successor_account_id) {
     await supabaseAdmin

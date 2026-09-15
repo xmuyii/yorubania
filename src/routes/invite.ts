@@ -7,6 +7,8 @@ import {
   syncDefaultGrantsForPerson,
 } from "../relationships/default-grants";
 import { checkProfileRequirement } from "../policies/profile-requirements";
+import { calculateAge } from "../policies/profile-requirements";
+import { isRestricted } from "./enforcement";
 
 const RELATIONSHIP_TYPES = [
   "parent_child",
@@ -80,12 +82,27 @@ export function inviteRoutes(supabaseAdmin: SupabaseClient) {
   // apply as early as possible rather than waiting for claim.
   // --------------------------------------------------------------------
   router.post("/members/invite-relative", requireAuth(supabaseAdmin), async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "add_relationships")) {
+      return res.status(403).json({ error: "adding relationships is currently restricted on this account" });
+    }
+    const inviterPersonRecord = await supabaseAdmin
+      .from("persons")
+      .select("date_of_birth")
+      .eq("account_id", req.auth!.accountId)
+      .maybeSingle();
+    const inviterAge = calculateAge(inviterPersonRecord.data?.date_of_birth ?? null);
+    if (inviterAge !== null && inviterAge < 18) {
+      return res.status(403).json({
+        error: "members under 18 cannot invite anyone — this applies regardless of marital or relationship status",
+      });
+    }
+
     const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
     if (!profileCheck.allowed) {
       return res.status(403).json({ error: profileCheck.reason });
     }
 
-    const { fullName, relationshipType, inviterRole } = req.body ?? {};
+    const { fullName, relationshipType, inviterRole, defaultSharingEnabled } = req.body ?? {};
 
     if (!fullName || typeof fullName !== "string") {
       return res.status(400).json({ error: "fullName is required" });
@@ -139,6 +156,12 @@ export function inviteRoutes(supabaseAdmin: SupabaseClient) {
         person_a_id: personAId,
         person_b_id: personBId,
         relationship_type: relationshipType,
+        // For spouse relationships, defaults to true (shares children by
+        // default) unless the inviter explicitly opts out — lets someone
+        // with multiple spouses keep one line's children private from
+        // another spouse, per decision.
+        default_sharing_enabled:
+          relationshipType === "spouse" ? defaultSharingEnabled ?? true : true,
       })
       .select("id, person_a_id, person_b_id, relationship_type")
       .single();

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Access Control — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Whitelist &amp; Blacklist</p>
+        <h1>Access Control</h1>
+        <p class="muted">
+          This isn't a separate system from your family's default sharing —
+          it's the same access-grant system, just explicit. A "whitelist"
+          entry gives someone access beyond the automatic defaults; a
+          "blacklist" entry denies someone access that a default would
+          otherwise give them. Denials always win.
+        </p>
+
+        <form id="grant-form">
+          <label for="grantee-account-id">Their account ID</label>
+          <input type="text" id="grantee-account-id" required />
+          <label for="scope">Scope</label>
+          <select id="scope">
+            <option value="full_record">Everything (full record)</option>
+            <option value="media">Media only</option>
+            <option value="biography">Chapters/Book only</option>
+          </select>
+          <label for="grant-type">Type</label>
+          <select id="grant-type">
+            <option value="whitelist">Whitelist — grant access</option>
+            <option value="blacklist">Blacklist — deny access</option>
+          </select>
+          <button type="submit">Add</button>
+        </form>
+        <div id="grant-message"></div>
+
+        <hr class="hairline" />
+        <div id="grants-list" class="muted">Loading…</div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/access-control.ts"></script>
+  </body>
+</html>

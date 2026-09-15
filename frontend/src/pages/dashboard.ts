@@ -196,8 +196,24 @@ async function loadAchievements() {
   }
 }
 
+async function loadTicker() {
+  const el = document.getElementById("news-ticker-track");
+  if (!el) return;
+  try {
+    const data = await apiGet("/tribe/announcements");
+    if (data.announcements.length === 0) {
+      el.innerHTML = `<span>No news yet.</span>`;
+      return;
+    }
+    el.innerHTML = data.announcements.map((a: any) => `<span>${a.title}</span>`).join("");
+  } catch {
+    el.innerHTML = "";
+  }
+}
+
 loadBadge();
 loadOverview();
 loadLeadership();
 loadAnnouncements();
 loadAchievements();
+loadTicker();

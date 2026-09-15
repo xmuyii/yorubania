@@ -59,6 +59,19 @@ export function rulesRoutes(supabaseAdmin: SupabaseClient) {
     return res.json(data);
   });
 
+  // Full version history — clarifies that "editable" general rules are
+  // never actually erased, only superseded. Old versions are permanently
+  // preserved and readable, exactly like the immutable spiritual rules —
+  // the difference is only which version counts as "current" right now.
+  router.get("/rules/general/history", requireAuth(supabaseAdmin), async (_req, res) => {
+    const { data, error } = await supabaseAdmin
+      .from("general_rules")
+      .select("id, version, title, body, set_by_account_id, is_current, created_at")
+      .order("version", { ascending: false });
+    if (error) return res.status(500).json({ error: "failed to fetch rules history" });
+    return res.json({ versions: data ?? [] });
+  });
+
   router.post(
     "/rules/general",
     requireAuth(supabaseAdmin),

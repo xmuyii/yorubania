@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAuth } from "../middleware/auth-context";
 import { uploadObject, downloadObject, deleteObject } from "../storage/supabase-storage";
 import { checkProfileRequirement } from "../policies/profile-requirements";
+import { isRestricted } from "./enforcement";
 
 /**
  * IMPORTANT: the server NEVER sees plaintext vault contents. Every byte
@@ -108,6 +109,9 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
   // uploaded (spec Section 6). Body is the encrypted decoy blob itself;
   // filename/IV etc. travel as headers since this is a raw binary upload.
   router.post("/vaults/me/decoy", requireAuth(supabaseAdmin), rawBody, async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "vault_access")) {
+      return res.status(403).json({ error: "vault access is currently restricted on this account" });
+    }
     const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
     if (!profileCheck.allowed) {
       return res.status(403).json({ error: profileCheck.reason });
@@ -146,6 +150,9 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
   // per-account vault storage cap (accounts.vault_storage_limit_bytes /
   // vault_bytes_used, spec Section 6.1).
   router.post("/vaults/me/items", requireAuth(supabaseAdmin), rawBody, async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "vault_access")) {
+      return res.status(403).json({ error: "vault access is currently restricted on this account" });
+    }
     const profileCheck = await checkProfileRequirement(supabaseAdmin, req.auth!.accountId);
     if (!profileCheck.allowed) {
       return res.status(403).json({ error: profileCheck.reason });
@@ -235,6 +242,9 @@ export function vaultRoutes(supabaseAdmin: SupabaseClient) {
   // Returns the raw ciphertext + its IV. Decryption happens client-side —
   // this server never decrypts vault content, by design (zero-knowledge).
   router.get("/vaults/me/items/:itemId/download", requireAuth(supabaseAdmin), async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "vault_access")) {
+      return res.status(403).json({ error: "vault access is currently restricted on this account" });
+    }
     const vault = await getOwnVault(supabaseAdmin, req.auth!.accountId);
     if (!vault) return res.status(404).json({ error: "no vault for this account" });
 

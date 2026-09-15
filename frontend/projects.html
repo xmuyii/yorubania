@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Underway</p>
+        <h1>Projects</h1>
+        <p class="muted">What Yorubania is currently building or working on.</p>
+        <div id="projects-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="new-project-section" style="display:none">
+        <h2>Add a project</h2>
+        <form id="project-form">
+          <label for="project-title">Title</label>
+          <input type="text" id="project-title" required />
+          <label for="project-description">Description</label>
+          <textarea id="project-description" rows="3"></textarea>
+          <label for="project-status">Status</label>
+          <select id="project-status">
+            <option value="planned">Planned</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+          <button type="submit">Add</button>
+        </form>
+        <div id="project-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/projects.ts"></script>
+  </body>
+</html>

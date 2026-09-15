@@ -5,6 +5,8 @@ export function renderNav(current: string) {
   const el = document.getElementById("nav-root");
   if (!el) return;
 
+  document.body.classList.add("has-sidebar");
+
   const links = [
     { href: "/dashboard.html", label: "Dashboard" },
     { href: "/profile.html", label: "Profile" },
@@ -16,6 +18,11 @@ export function renderNav(current: string) {
     { href: "/narrative.html", label: "Narrative" },
     { href: "/rules.html", label: "Rules" },
     { href: "/documents.html", label: "Documents" },
+    { href: "/education.html", label: "Education" },
+    { href: "/projects.html", label: "Projects" },
+    { href: "/ifatarot.html", label: "Ifatarot" },
+    { href: "/polls.html", label: "Polls" },
+    { href: "/access-control.html", label: "Access Control" },
     { href: "/council.html", label: "Council" },
     { href: "/families.html", label: "Families" },
     { href: "/directory.html", label: "Directory" },
@@ -24,21 +31,18 @@ export function renderNav(current: string) {
   ];
 
   el.innerHTML = `
-    <header class="topbar">
-      <div class="bar-inner">
-        <a class="brand" href="/dashboard.html">Yorubania</a>
-        <nav id="nav-links">
-          ${links
-            .map(
-              (l) =>
-                `<a href="${l.href}" class="${l.href === current ? "current" : ""}">${l.label}</a>`
-            )
-            .join("")}
-          <a href="#" id="logout-link">Sign out</a>
-        </nav>
-      </div>
-      <div class="rule"></div>
-    </header>
+    <aside class="sidebar">
+      <a class="brand" href="/dashboard.html">Yorubania</a>
+      <nav id="nav-links">
+        ${links
+          .map(
+            (l) =>
+              `<a href="${l.href}" class="${l.href === current ? "current" : ""}">${l.label}</a>`
+          )
+          .join("")}
+        <a href="#" id="logout-link">Sign out</a>
+      </nav>
+    </aside>
   `;
 
   document.getElementById("logout-link")?.addEventListener("click", async (e) => {

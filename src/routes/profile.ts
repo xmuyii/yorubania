@@ -5,6 +5,7 @@ import { requireAuth } from "../middleware/auth-context";
 import { uploadObject } from "../storage/supabase-storage";
 import { sha256Hex } from "./vault";
 import { calculateAge, calculateYorubanianBirthYear, canViewAge } from "../policies/profile-requirements";
+import { isRestricted } from "./enforcement";
 
 /**
  * Sets a Person's public-facing profile image. Used for the founder photo
@@ -73,6 +74,9 @@ export function profileRoutes(supabaseAdmin: SupabaseClient) {
   // Reuse an already-uploaded media asset as the profile image, without
   // re-uploading. Still self-only.
   router.patch("/persons/:personId/profile-image", requireAuth(supabaseAdmin), async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "update_account")) {
+      return res.status(403).json({ error: "account updates are currently restricted" });
+    }
     const { mediaAssetId } = req.body ?? {};
     if (!mediaAssetId) return res.status(400).json({ error: "mediaAssetId is required" });
 
@@ -110,6 +114,9 @@ export function profileRoutes(supabaseAdmin: SupabaseClient) {
   // the profile-picture requirement applies to you at all (minors are
   // exempt) and what "born in Year N of Yorubania" shows as.
   router.patch("/persons/me/date-of-birth", requireAuth(supabaseAdmin), async (req, res) => {
+    if (await isRestricted(supabaseAdmin, req.auth!.accountId, "update_account")) {
+      return res.status(403).json({ error: "account updates are currently restricted" });
+    }
     const { dateOfBirth } = req.body ?? {};
     if (!dateOfBirth) return res.status(400).json({ error: "dateOfBirth is required (YYYY-MM-DD)" });
 

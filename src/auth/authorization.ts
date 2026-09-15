@@ -18,6 +18,8 @@ export interface DbClient {
   getActiveGrants(subjectPersonId: string, granteeAccountId: string): Promise<AccessGrantRow[]>;
   /** True if subjectPersonId is an ancestor of the person linked to accessorAccountId. */
   isAncestorOf(subjectPersonId: string, accessorAccountId: string): Promise<boolean>;
+  /** True if accessorAccountId is currently punisher-restricted from viewing others' content. */
+  isViewRestricted(accessorAccountId: string): Promise<boolean>;
 }
 
 export type RelationshipStep = {
@@ -71,6 +73,12 @@ export async function canAccess(
   // 1. Self-access
   if (subjectPerson.accountId === accessorAccountId) {
     return { allowed: true, reason: "self" };
+  }
+
+  // 1.5. Punisher-imposed view restriction — blocks viewing OTHERS'
+  // content specifically; self-access above is never affected by this.
+  if (await db.isViewRestricted(accessorAccountId)) {
+    return { allowed: false, reason: "viewing others is currently restricted on this account" };
   }
 
   // Pull every AccessGrant (including system-generated defaults, e.g.

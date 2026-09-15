@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polls — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Governance</p>
+        <h1>Polls</h1>
+        <p class="muted">Voting requires opting into the member directory first (see Settings).</p>
+        <div id="polls-list" class="muted">Loading…</div>
+      </section>
+
+      <section class="section" id="open-poll-section" style="display:none">
+        <h2>Open a new poll</h2>
+        <form id="poll-form">
+          <label for="poll-title">Title</label>
+          <input type="text" id="poll-title" required />
+          <label for="poll-description">Description</label>
+          <textarea id="poll-description" rows="2"></textarea>
+          <label for="poll-options">Options (one per line, at least 2)</label>
+          <textarea id="poll-options" rows="3" placeholder="Yes&#10;No"></textarea>
+          <label for="poll-closes-at">Closes at</label>
+          <input type="datetime-local" id="poll-closes-at" required />
+          <button type="submit">Open poll</button>
+        </form>
+        <div id="poll-form-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/polls.ts"></script>
+  </body>
+</html>

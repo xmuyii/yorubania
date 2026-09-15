@@ -70,54 +70,94 @@ a {
   padding: 0 24px 96px;
 }
 
-/* --- Top bar --------------------------------------------------------- */
+/* --- Sidebar ----------------------------------------------------------- */
 
-header.topbar {
+body.has-sidebar {
+  padding-left: 220px;
+}
+
+aside.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 220px;
   background: var(--indigo);
   color: var(--paper);
-}
-
-header.topbar .bar-inner {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 18px 24px;
+  overflow-y: auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  flex-direction: column;
+  padding: 24px 0;
 }
 
-header.topbar .brand {
+aside.sidebar .brand {
   font-family: var(--serif);
   font-size: 1.15rem;
-  letter-spacing: 0.02em;
   color: var(--paper);
   text-decoration: none;
+  padding: 0 20px 20px;
+  display: block;
+  border-bottom: 1px solid rgba(246, 240, 228, 0.15);
+  margin-bottom: 12px;
 }
 
-header.topbar nav {
+aside.sidebar nav {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex: 1;
 }
 
-header.topbar nav a {
+aside.sidebar nav a {
   color: rgba(246, 240, 228, 0.78);
   text-decoration: none;
   font-size: 0.92rem;
+  padding: 9px 20px;
+  border-left: 3px solid transparent;
 }
 
-header.topbar nav a:hover,
-header.topbar nav a.current {
+aside.sidebar nav a:hover {
   color: var(--paper);
-  border-bottom: 1px solid var(--brass);
+  background: rgba(246, 240, 228, 0.06);
 }
 
-header.topbar .rule {
-  height: 3px;
-  background: linear-gradient(90deg, var(--brass), var(--evergreen), var(--brass));
-  opacity: 0.85;
+aside.sidebar nav a.current {
+  color: var(--paper);
+  border-left-color: var(--brass);
+  background: rgba(246, 240, 228, 0.08);
 }
+
+aside.sidebar nav a#logout-link {
+  margin-top: auto;
+  border-top: 1px solid rgba(246, 240, 228, 0.15);
+  padding-top: 14px;
+}
+
+@media (max-width: 760px) {
+  body.has-sidebar {
+    padding-left: 0;
+  }
+  aside.sidebar {
+    position: static;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+  aside.sidebar .brand {
+    border-bottom: none;
+    padding: 6px 8px;
+    margin-bottom: 0;
+  }
+  aside.sidebar nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  aside.sidebar nav a#logout-link {
+    margin-top: 0;
+    border-top: none;
+  }
+}
+
 
 /* --- Sections & rules -------------------------------------------------- */
 
@@ -240,7 +280,36 @@ button.danger {
   color: var(--alert);
 }
 
-/* --- Leadership portraits ------------------------------------------------ */
+/* --- News ticker ----------------------------------------------------------- */
+
+.news-ticker {
+  background: var(--indigo);
+  color: var(--paper);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 8px 0;
+}
+
+.news-ticker-track {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker-scroll 40s linear infinite;
+  font-size: 0.85rem;
+}
+
+.news-ticker-track span {
+  margin-right: 48px;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
 
 .seals {
   display: flex;

@@ -18,6 +18,7 @@ export function createSupabaseGraphClient(supabase: SupabaseClient): GraphDbClie
         .from("relationships")
         .select("person_a_id, person_b_id")
         .eq("relationship_type", "sibling")
+        .eq("status", "active")
         .or(`person_a_id.eq.${personId},person_b_id.eq.${personId}`);
       if (error || !data) return [];
 
@@ -38,6 +39,8 @@ export function createSupabaseGraphClient(supabase: SupabaseClient): GraphDbClie
         .from("relationships")
         .select("person_a_id, person_b_id")
         .eq("relationship_type", "spouse")
+        .eq("status", "active")
+        .eq("default_sharing_enabled", true)
         .or(`person_a_id.eq.${personId},person_b_id.eq.${personId}`);
       if (error || !data) return [];
 

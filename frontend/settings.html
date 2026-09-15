@@ -60,6 +60,38 @@
         </form>
         <div id="successor-message"></div>
       </section>
+      <section class="section">
+        <h2>Public contact info</h2>
+        <p class="muted">
+          Yorubania has no messaging built in. If you want to be findable
+          elsewhere, list where — Telegram is the tribe's recommended
+          platform for now (more private than WhatsApp), though this may
+          change to whatever the tribe agrees on later.
+        </p>
+        <form id="public-contact-form">
+          <label for="telegram-handle">Telegram handle</label>
+          <input type="text" id="telegram-handle" placeholder="@yourhandle" />
+          <label for="external-note">Other notes (optional)</label>
+          <input type="text" id="external-note" />
+          <button type="submit">Save</button>
+        </form>
+        <div id="public-contact-message"></div>
+      </section>
+
+      <section class="section" id="handover-section" style="display:none">
+        <h2>Claim your account</h2>
+        <p class="muted">
+          You've turned 18 — this account may have been set up on your
+          behalf. Set a brand-new password only you know to complete your
+          own control of it.
+        </p>
+        <form id="handover-form">
+          <label for="new-password">New password</label>
+          <input type="password" id="new-password" required minlength="8" />
+          <button type="submit">Claim my account</button>
+        </form>
+        <div id="handover-message"></div>
+      </section>
     </div>
     <script type="module" src="/src/pages/settings.ts"></script>
   </body>

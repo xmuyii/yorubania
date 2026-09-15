@@ -74,6 +74,26 @@
         </section>
 
         <section class="section">
+          <h2>Registrations</h2>
+          <p class="muted">Anyone registered (related or not) via the form below, and whether they've claimed their account yet.</p>
+          <button id="load-registrations">Refresh</button>
+          <div id="registrations-list" class="muted" style="margin-top:12px;"></div>
+        </section>
+
+        <section class="section" id="superadmin-only-2" style="display:none">
+          <h2>Transfer superadmin (retirement handoff)</h2>
+          <p class="muted">You become admin; the target account becomes superadmin. This is permanent — confirm before submitting.</p>
+          <form id="transfer-form">
+            <label for="transfer-account-id">New superadmin's account ID</label>
+            <input type="text" id="transfer-account-id" required />
+            <label for="transfer-note">Note (optional)</label>
+            <input type="text" id="transfer-note" />
+            <button type="submit" class="danger">Transfer superadmin</button>
+          </form>
+          <div id="transfer-message"></div>
+        </section>
+
+        <section class="section">
           <h2>Register a person</h2>
           <p class="muted">For someone with no existing connection to a current member.</p>
           <form id="register-form">

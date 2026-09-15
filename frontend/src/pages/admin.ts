@@ -20,6 +20,7 @@ async function checkAccess() {
 
     if (me.role === "superadmin") {
       document.getElementById("superadmin-only")!.style.display = "block";
+      document.getElementById("superadmin-only-2")!.style.display = "block";
       loadAdmins();
     }
     loadBackupStatus();
@@ -264,6 +265,71 @@ document.getElementById("open-cycle-form")!.addEventListener("submit", async (e)
   try {
     await apiPost(`/admin/migration-cycles/${cycleId}/open`);
     el.innerHTML = `<div class="notice">Decision window opened.</div>`;
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+// --- Registrations (one-click grant admin for a newly claimed account) ------
+document.getElementById("load-registrations")!.addEventListener("click", async () => {
+  const el = document.getElementById("registrations-list")!;
+  el.innerHTML = "Loading…";
+  try {
+    const data = await apiGet("/admin/registrations");
+    if (data.registrations.length === 0) {
+      el.innerHTML = "No registrations yet.";
+      return;
+    }
+    el.innerHTML = data.registrations
+      .map(
+        (r: any) => `
+      <div class="row">
+        <span>${r.full_name} — <span class="muted">${r.status}${r.relationship_to_inviter ? ` · ${r.relationship_to_inviter}` : " · unrelated"}</span></span>
+        ${
+          r.status === "claimed" && r.claimed_by_account_id
+            ? `<button class="secondary" data-grant-admin="${r.claimed_by_account_id}">Make admin</button>`
+            : r.status === "pending"
+            ? `<button class="secondary" data-reject="${r.id}">Reject invite</button>`
+            : ""
+        }
+      </div>`
+      )
+      .join("");
+
+    el.querySelectorAll("[data-grant-admin]").forEach((btn) =>
+      btn.addEventListener("click", async () => {
+        try {
+          await apiPost("/admin/admins", { accountId: (btn as HTMLElement).dataset.grantAdmin });
+          alert("Granted admin.");
+        } catch (err: any) {
+          alert(err.message);
+        }
+      })
+    );
+    el.querySelectorAll("[data-reject]").forEach((btn) =>
+      btn.addEventListener("click", async () => {
+        await apiPost(`/admin/registrations/${(btn as HTMLElement).dataset.reject}/reject`);
+        (document.getElementById("load-registrations") as HTMLButtonElement).click();
+      })
+    );
+  } catch (err: any) {
+    el.innerHTML = `<div class="error">${err.message}</div>`;
+  }
+});
+
+// --- Superadmin transfer -----------------------------------------------------
+document.getElementById("transfer-form")!.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const el = document.getElementById("transfer-message")!;
+  el.innerHTML = "";
+  const newSuperadminAccountId = (document.getElementById("transfer-account-id") as HTMLInputElement).value;
+  if (!confirm("This permanently transfers superadmin. You will become an admin, not superadmin. Continue?")) return;
+  try {
+    await apiPost("/admin/superadmin/transfer", {
+      newSuperadminAccountId,
+      note: (document.getElementById("transfer-note") as HTMLInputElement).value,
+    });
+    el.innerHTML = `<div class="notice">Transferred. Reload to see your updated role.</div>`;
   } catch (err: any) {
     el.innerHTML = `<div class="error">${err.message}</div>`;
   }

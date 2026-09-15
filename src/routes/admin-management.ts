@@ -40,6 +40,8 @@ export function adminManagementRoutes(supabaseAdmin: SupabaseClient) {
       }
 
       const { error } = await supabaseAdmin.from("accounts").update({ role: "admin" }).eq("id", accountId);
+      // Admins are automatically directory-visible, per decision.
+      await supabaseAdmin.from("accounts").update({ directory_visible: true }).eq("id", accountId);
       if (error) return res.status(500).json({ error: "failed to grant admin role" });
 
       await supabaseAdmin.from("access_logs").insert({

@@ -131,6 +131,38 @@ export function backupRoutes(supabaseAdmin: SupabaseClient) {
     }
   );
 
+  // Every Standard-mode vault's sealed key, for the custodian's own
+  // review — every view of this list is logged for accountability, since
+  // it's the one place all sealed keys are visible in one place. Shows
+  // whose vault each key belongs to (rather than anonymizing) since the
+  // custodian needs that to act on a specific recovery request — flagged
+  // as a design choice worth revisiting if anonymization is preferred.
+  router.get("/admin/vault-recovery/sealed-keys", requireAuth(supabaseAdmin), async (req, res) => {
+    const { data: custodianSetting } = await supabaseAdmin
+      .from("tribe_settings")
+      .select("value")
+      .eq("key", "vault_recovery_custodian_account_id")
+      .maybeSingle();
+    const custodianAccountId = custodianSetting?.value ? JSON.parse(custodianSetting.value as string) : null;
+    if (custodianAccountId !== req.auth!.accountId && req.auth!.role !== "superadmin") {
+      return res.status(403).json({ error: "only the designated vault recovery custodian may view this" });
+    }
+
+    const { data: vaults } = await supabaseAdmin
+      .from("vaults")
+      .select("id, account_id, admin_recovery_sealed_key, recovery_key_id")
+      .eq("security_mode", "standard");
+
+    await supabaseAdmin.from("access_logs").insert({
+      account_id: req.auth!.accountId,
+      accessor_account_id: req.auth!.accountId,
+      accessor_role: "vault_recovery_custodian",
+      action: "viewed_sealed_key_list",
+    });
+
+    return res.json({ sealedKeys: vaults ?? [] });
+  });
+
   router.post("/admin/vault-recovery-requests", requireAuth(supabaseAdmin), async (req, res) => {
     const { vaultId, reason } = req.body ?? {};
     if (!vaultId || !reason) return res.status(400).json({ error: "vaultId and reason are required" });
@@ -224,6 +256,28 @@ export function backupRoutes(supabaseAdmin: SupabaseClient) {
       achievements: achievements ?? [],
       note: "This export does not include vault contents — those are zero-knowledge encrypted and never available to export in plaintext through the server.",
     });
+  });
+
+  // Council-decided physical backup location — per decision, this is the
+  // council's call, not a unilateral admin choice.
+  router.put(
+    "/admin/backup-location",
+    requireAuth(supabaseAdmin),
+    requireRole("admin", "superadmin"),
+    async (req, res) => {
+      const { location, note } = req.body ?? {};
+      if (!location) return res.status(400).json({ error: "location is required" });
+      await supabaseAdmin.from("tribe_settings").upsert({
+        key: "backup_physical_location",
+        value: JSON.stringify({ location, note: note ?? null, setBy: req.auth!.accountId, setAt: new Date().toISOString() }),
+      });
+      return res.json({ ok: true });
+    }
+  );
+
+  router.get("/admin/backup-location", requireAuth(supabaseAdmin), requireRole("admin", "superadmin"), async (_req, res) => {
+    const { data } = await supabaseAdmin.from("tribe_settings").select("value").eq("key", "backup_physical_location").maybeSingle();
+    return res.json({ location: data?.value ? JSON.parse(data.value as string) : null });
   });
 
   return router;

@@ -6,6 +6,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { DbClient, RelationshipStep, AccessGrantRow } from "./authorization";
+import { isRestricted } from "../routes/enforcement";
 
 export function createSupabaseDbClient(supabase: SupabaseClient): DbClient {
   return {
@@ -33,6 +34,10 @@ export function createSupabaseDbClient(supabase: SupabaseClient): DbClient {
         isDenial: row.is_denial,
         status: row.status,
       }));
+    },
+
+    async isViewRestricted(accessorAccountId: string): Promise<boolean> {
+      return isRestricted(supabase, accessorAccountId, "view_others");
     },
 
     async isAncestorOf(subjectPersonId: string, accessorAccountId: string): Promise<boolean> {

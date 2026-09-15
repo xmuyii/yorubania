@@ -7,6 +7,12 @@ export function accountRoutes(supabaseAdmin: SupabaseClient) {
   const router = Router();
 
   router.get("/accounts/me", requireAuth(supabaseAdmin), async (req, res) => {
+    const { data: fullAccount } = await supabaseAdmin
+      .from("accounts")
+      .select("custodial_handover_required")
+      .eq("id", req.auth!.accountId)
+      .maybeSingle();
+
     const { data: person } = await supabaseAdmin
       .from("persons")
       .select("id, full_name, date_of_birth, profile_image_media_id")
@@ -28,6 +34,7 @@ export function accountRoutes(supabaseAdmin: SupabaseClient) {
     return res.json({
       accountId: req.auth!.accountId,
       role: req.auth!.role,
+      custodialHandoverRequired: fullAccount?.custodial_handover_required ?? false,
       person: person
         ? {
             id: person.id,

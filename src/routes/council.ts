@@ -84,6 +84,17 @@ export function councilRoutes(supabaseAdmin: SupabaseClient) {
       const { nomineeAccountId } = req.body ?? {};
       if (!nomineeAccountId) return res.status(400).json({ error: "nomineeAccountId is required" });
 
+      const { data: nomineeAccount } = await supabaseAdmin
+        .from("accounts")
+        .select("directory_visible")
+        .eq("id", nomineeAccountId)
+        .single();
+      if (!nomineeAccount?.directory_visible) {
+        return res.status(422).json({
+          error: "the nominee must be opted into the member directory to contest for a seat",
+        });
+      }
+
       const { data: election } = await supabaseAdmin
         .from("council_elections")
         .select("id, seat_number, status")
@@ -114,6 +125,17 @@ export function councilRoutes(supabaseAdmin: SupabaseClient) {
   router.post("/council/elections/:electionId/vote", requireAuth(supabaseAdmin), async (req, res) => {
     const { candidateAccountId } = req.body ?? {};
     if (!candidateAccountId) return res.status(400).json({ error: "candidateAccountId is required" });
+
+    const { data: voterAccount } = await supabaseAdmin
+      .from("accounts")
+      .select("directory_visible")
+      .eq("id", req.auth!.accountId)
+      .single();
+    if (!voterAccount?.directory_visible) {
+      return res.status(403).json({
+        error: "you must opt into the member directory before you can vote (see Settings)",
+      });
+    }
 
     const { data: election } = await supabaseAdmin
       .from("council_elections")
@@ -226,6 +248,8 @@ export function councilRoutes(supabaseAdmin: SupabaseClient) {
       if (winnerAccount?.role === "member") {
         await supabaseAdmin.from("accounts").update({ role: "admin" }).eq("id", winnerAccountId);
       }
+      // Council seats are automatically directory-visible, per decision.
+      await supabaseAdmin.from("accounts").update({ directory_visible: true }).eq("id", winnerAccountId);
 
       // Announce the winner — the news feed is how members learn who's
       // now on the council, not just an admin panel.

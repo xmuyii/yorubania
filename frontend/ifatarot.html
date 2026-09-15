@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ifatarot — Yorubania</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      #ifatarot-frame {
+        width: 100%;
+        height: 80vh;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav-root"></div>
+    <div class="container" style="padding-top: 40px;">
+      <section class="section">
+        <p class="section-label">Every account, always</p>
+        <h1>Ifatarot</h1>
+        <p class="muted" id="ifatarot-status">Loading…</p>
+        <div id="ifatarot-content"></div>
+      </section>
+
+      <section class="section" id="admin-config-section" style="display:none">
+        <h2>Set the Ifatarot app URL (superadmin only)</h2>
+        <form id="ifatarot-url-form">
+          <label for="ifatarot-url">URL</label>
+          <input type="url" id="ifatarot-url" placeholder="https://ifatarot.example.com" required />
+          <button type="submit">Save</button>
+        </form>
+        <div id="ifatarot-url-message"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/pages/ifatarot.ts"></script>
+  </body>
+</html>

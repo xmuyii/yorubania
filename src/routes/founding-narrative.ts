@@ -135,6 +135,8 @@ export function foundingNarrativeRoutes(supabaseAdmin: SupabaseClient) {
       if (appointedAccount?.role === "member") {
         await supabaseAdmin.from("accounts").update({ role: "admin" }).eq("id", accountId);
       }
+      // Council seats are automatically directory-visible, per decision.
+      await supabaseAdmin.from("accounts").update({ directory_visible: true }).eq("id", accountId);
 
       const { data: person } = await supabaseAdmin
         .from("persons")
