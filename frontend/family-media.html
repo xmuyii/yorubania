@@ -20,14 +20,20 @@
           long-term archival format conversion is on the roadmap.
         </p>
 
-        <label for="subject-person-id">Whose album is this?</label>
-        <input type="text" id="subject-person-id" placeholder="Your own person ID (auto-filled below)" />
         <p class="muted" id="self-hint"></p>
-        <p class="muted">
-          Don't know someone's ID? <a href="/family-tree.html">Browse your Family Tree</a>
-          and click on them to open their album directly, or
-          <a href="/directory.html">search the Directory</a> by name.
-        </p>
+        <details style="margin: 10px 0;">
+          <summary class="muted" style="cursor:pointer;">Viewing/uploading for someone else instead?</summary>
+          <label for="subject-person-id">Their person ID</label>
+          <input type="text" id="subject-person-id" placeholder="Leave blank to use your own album" />
+          <p class="muted">
+            Don't know their ID? <a href="/family-tree.html">Browse your Family Tree</a>
+            and click on them to open their album directly, or
+            <a href="/directory.html">search the Directory</a> by name.
+          </p>
+        </details>
+
+        <label for="media-caption">Caption</label>
+        <input type="text" id="media-caption" placeholder="A short caption — who, what, when, where" />
 
         <label for="media-file">Add a photo or document</label>
         <input type="file" id="media-file" />

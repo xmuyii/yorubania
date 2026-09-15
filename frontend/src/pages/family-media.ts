@@ -19,13 +19,13 @@ async function init() {
     const me = await apiGet("/accounts/me");
     if (me.person) {
       myPersonId = me.person.id;
-      if (!requested) {
-        subjectInput.value = me.person.id;
-        document.getElementById("self-hint")!.textContent = `Defaulted to you (${me.person.fullName}).`;
-      }
+      document.getElementById("self-hint")!.textContent = `Showing your own album (${me.person.fullName}).`;
+    } else {
+      document.getElementById("self-hint")!.textContent =
+        "Your account has no linked person record yet — this shouldn't happen for a normal member account.";
     }
-  } catch {
-    // ignore — subject field just stays empty, user can type an ID manually
+  } catch (err: any) {
+    document.getElementById("self-hint")!.textContent = `Couldn't load your account (${err.message}).`;
   }
 
   if (requested) {
@@ -47,14 +47,17 @@ document.getElementById("media-submit")!.addEventListener("click", async () => {
   message.innerHTML = "";
   const fileInput = document.getElementById("media-file") as HTMLInputElement;
   const file = fileInput.files?.[0];
+  const caption = (document.getElementById("media-caption") as HTMLInputElement).value.trim();
+  // Blank means "my own album" — the backend defaults to self when this
+  // header is omitted, so we simply don't send it in that case.
   const subjectPersonId = subjectInput.value.trim();
   const button = document.getElementById("media-submit") as HTMLButtonElement;
   const track = document.getElementById("media-progress-track")!;
   const fill = document.getElementById("media-progress-fill") as HTMLElement;
   const status = document.getElementById("media-status")!;
 
-  if (!file || !subjectPersonId) {
-    message.innerHTML = `<div class="error">Choose a file and a person ID first.</div>`;
+  if (!file) {
+    message.innerHTML = `<div class="error">Choose a file first.</div>`;
     return;
   }
 
@@ -65,20 +68,19 @@ document.getElementById("media-submit")!.addEventListener("click", async () => {
 
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
-    await apiPostBinaryWithProgress(
-      "/media",
-      bytes,
-      {
-        "x-subject-person-id": subjectPersonId,
-        "x-original-format": file.type || "application/octet-stream",
-      },
-      (percent) => {
-        fill.style.width = `${percent}%`;
-        status.textContent = `Uploading… ${percent}%`;
-      }
-    );
+    const headers: Record<string, string> = {
+      "x-original-format": file.type || "application/octet-stream",
+    };
+    if (subjectPersonId) headers["x-subject-person-id"] = subjectPersonId;
+    if (caption) headers["x-caption"] = encodeURIComponent(caption);
+
+    await apiPostBinaryWithProgress("/media", bytes, headers, (percent) => {
+      fill.style.width = `${percent}%`;
+      status.textContent = `Uploading… ${percent}%`;
+    });
     status.textContent = "Done.";
     fileInput.value = "";
+    (document.getElementById("media-caption") as HTMLInputElement).value = "";
     loadMedia();
   } catch (err: any) {
     status.textContent = "";
@@ -106,7 +108,7 @@ async function loadMedia() {
   const el = document.getElementById("media-list")!;
   const subjectPersonId = subjectInput.value.trim() || myPersonId;
   if (!subjectPersonId) {
-    el.innerHTML = "Enter a person ID above to see their album.";
+    el.innerHTML = "Couldn't determine which album to show.";
     return;
   }
   try {
@@ -126,7 +128,7 @@ async function loadMedia() {
       if (m.original_format?.startsWith("image/")) {
         const img = document.createElement("img");
         img.className = "thumb";
-        img.alt = "";
+        img.alt = m.caption ?? "";
         thumbUrl(m.id).then((url) => {
           if (url) img.src = url;
         });
@@ -140,7 +142,9 @@ async function loadMedia() {
 
       const caption = document.createElement("div");
       caption.className = "caption";
-      caption.textContent = `${(m.size_bytes / 1024).toFixed(0)} KB`;
+      caption.textContent = m.caption
+        ? `${m.caption}${m.is_legacy ? " ★" : ""}`
+        : `${(m.size_bytes / 1024).toFixed(0)} KB`;
       item.appendChild(caption);
 
       item.addEventListener("click", async () => {

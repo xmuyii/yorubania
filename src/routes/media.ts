@@ -56,16 +56,34 @@ export function mediaRoutes(supabaseAdmin: SupabaseClient) {
       return res.status(403).json({ error: profileCheck.reason });
     }
 
-    const subjectPersonId = req.header("x-subject-person-id");
     const originalFormat = req.header("x-original-format");
-    if (!subjectPersonId || !originalFormat) {
-      return res.status(400).json({ error: "x-subject-person-id and x-original-format headers are required" });
+    const rawCaption = req.header("x-caption");
+    const caption = rawCaption ? decodeURIComponent(rawCaption) : null;
+    let subjectPersonId: string | undefined = req.header("x-subject-person-id");
+
+    // Defaults to your own person record when not specified — most
+    // uploads are for yourself, so this shouldn't require knowing your
+    // own person ID.
+    if (!subjectPersonId) {
+      const { data: selfPerson } = await supabaseAdmin
+        .from("persons")
+        .select("id")
+        .eq("account_id", req.auth!.accountId)
+        .maybeSingle();
+      if (!selfPerson) {
+        return res.status(400).json({ error: "no linked person record for this account" });
+      }
+      subjectPersonId = selfPerson.id;
+    }
+
+    if (!originalFormat) {
+      return res.status(400).json({ error: "x-original-format header is required" });
     }
     if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
       return res.status(400).json({ error: "request body must be the file bytes" });
     }
 
-    const allowed = await canUploadFor(subjectPersonId, req.auth!.accountId);
+    const allowed = await canUploadFor(subjectPersonId!, req.auth!.accountId);
     if (!allowed) {
       return res.status(403).json({ error: "cannot upload media for this person" });
     }
@@ -93,6 +111,7 @@ export function mediaRoutes(supabaseAdmin: SupabaseClient) {
         original_format: originalFormat,
         size_bytes: req.body.length,
         is_vault_item: false,
+        caption,
       })
       .select("id")
       .single();
@@ -130,7 +149,7 @@ export function mediaRoutes(supabaseAdmin: SupabaseClient) {
 
     const { data, error } = await supabaseAdmin
       .from("media_assets")
-      .select("id, original_format, size_bytes, created_at")
+      .select("id, original_format, caption, is_legacy, size_bytes, created_at")
       .eq("subject_person_id", req.params.personId)
       .eq("is_vault_item", false)
       .order("created_at", { ascending: false });
